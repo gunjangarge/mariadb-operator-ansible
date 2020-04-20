@@ -1,0 +1,9 @@
+---
+# defaults file for mariadb
+size: 2
+mysql_root_password: password
+db_image: mariadb:latest
+mysql_database: sample
+mysql_user: john
+mysql_user_password: john
+mysql_conn_service_port: 32000

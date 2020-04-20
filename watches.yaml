@@ -1,0 +1,5 @@
+---
+- version: v1
+  group: com.gunjangarge.operator.mariadb
+  kind: MariaDB
+  playbook: playbook.yaml

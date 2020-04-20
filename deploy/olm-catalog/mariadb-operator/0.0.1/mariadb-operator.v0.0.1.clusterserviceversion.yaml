@@ -1,0 +1,192 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDB",
+          "metadata": {
+            "name": "mariadb-instance",
+            "namespace": "default"
+          },
+          "spec": {
+            "db_image": "mariadb:latest",
+            "mysql_conn_service_port": 32000,
+            "mysql_database": "sample1",
+            "mysql_root_password": "password",
+            "mysql_user": "john1",
+            "mysql_user_password": "john1",
+            "size": 3
+          }
+        }
+      ]
+    capabilities: Basic Install
+    categories: Database
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v1 
+    createdAt: 2020-04-21 11:17:00
+    description: Create mariadb server and database on Kubernetes
+    repository: https://github.com/gunjangarge/mariadb-operator-ansible
+    support: Gunjan Garge
+    certified: 'false'
+  name: mariadb-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Represents a resource for managing MariaDB database
+      kind: MariaDB
+      displayName: MariaDB Operator using Ansible
+      name: mariadbs.com.gunjangarge.operator.mariadb
+      version: v1
+  description: This is mariadb operator using ansible
+  displayName: MariaDB Operator using Ansible
+  icon:
+  - base64data: ""
+    mediatype: "image/png"
+  install:
+    spec:
+      deployments:
+      - name: mariadb-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: mariadb-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: mariadb-operator
+            spec:
+              containers:
+              - env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: mariadb-operator
+                - name: ANSIBLE_GATHERING
+                  value: explicit
+                - name: ANSIBLE_DEBUG_LOGS
+                  value: "True"
+                image: quay.io/gunjangarge/mariadb-operator-ansible:v1
+                imagePullPolicy: IfNotPresent
+                name: mariadb-operator
+                resources: {}
+                volumeMounts:
+                - mountPath: /tmp/ansible-operator/runner
+                  name: runner
+              serviceAccountName: mariadb-operator
+              volumes:
+              - emptyDir: {}
+                name: runner
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - mariadb-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - com.gunjangarge.operator.mariadb
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - '*'
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        serviceAccountName: mariadb-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - "mariadb operator ansible"
+  maintainers:
+  - name: Gunjan Garge
+    email : gunjangarge@gmail.com
+  maturity: alpha
+  provider: 
+   name: Gunjan Garge
+  version: 0.0.1
