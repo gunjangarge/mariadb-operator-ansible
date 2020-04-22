@@ -17,7 +17,7 @@ spec:
       containers:
         - name: mariadb-operator
           # Replace this with the built image name
-          image: quay.io/gunjangarge/mariadb-operator-ansible:v1
+          image: quay.io/gunjangarge/mariadb-operator-ansible:v2
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
             - mountPath: /tmp/ansible-operator/runner

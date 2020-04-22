@@ -24,7 +24,7 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Database
-    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v1 
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2 
     createdAt: 2020-04-21 11:17:00
     description: Create mariadb server and database on Kubernetes
     repository: https://github.com/gunjangarge/mariadb-operator-ansible
@@ -77,7 +77,7 @@ spec:
                   value: explicit
                 - name: ANSIBLE_DEBUG_LOGS
                   value: "True"
-                image: quay.io/gunjangarge/mariadb-operator-ansible:v1
+                image: quay.io/gunjangarge/mariadb-operator-ansible:v2
                 imagePullPolicy: IfNotPresent
                 name: mariadb-operator
                 resources: {}
@@ -164,12 +164,6 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - '*'
-          resources:
-          - '*'
-          verbs:
-          - '*'
         serviceAccountName: mariadb-operator
     strategy: deployment
   installModes:

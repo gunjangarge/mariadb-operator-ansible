@@ -1,11 +1,13 @@
 --- 
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata: 
   name: "{{meta.name}}-mariadb"
   namespace: "{{meta.namespace}}"
 spec: 
   replicas: {{size}}
+  updateStrategy:
+    type: RollingUpdate
   selector: 
     matchLabels: 
       app: mariadb
@@ -28,3 +30,12 @@ spec:
           name: mariadb
           ports: 
             - containerPort: 3306
+{% if external_data_storage.pvc_name is defined %}
+          volumeMounts:
+          - mountPath: /var/lib/mysql
+            name: mariadb-data
+      volumes:
+        - name: mariadb-data
+          persistentVolumeClaim:
+            claimName: {{external_data_storage.pvc_name}}
+{% endif %}
