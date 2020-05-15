@@ -8,17 +8,19 @@ metadata:
           "apiVersion": "com.gunjangarge.operator.mariadb/v1",
           "kind": "MariaDB",
           "metadata": {
-            "name": "mariadb-instance",
-            "namespace": "default"
+            "name": "mariadb-instance"
           },
           "spec": {
-            "db_image": "mariadb:latest",
+            "db_image": "mariadb:10.4",
+            "external_data_storage": {
+              "pvc_name": "mariadb-pvc"
+            },
             "mysql_conn_service_port": 32000,
             "mysql_database": "sample1",
             "mysql_root_password": "password",
             "mysql_user": "john1",
             "mysql_user_password": "john1",
-            "size": 3
+            "size": 1
           }
         }
       ]
@@ -30,7 +32,7 @@ metadata:
     repository: https://github.com/gunjangarge/mariadb-operator-ansible
     support: Gunjan Garge
     certified: 'false'
-  name: mariadb-operator.v0.0.1
+  name: mariadb-operator-ansible.v0.0.2
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -42,7 +44,7 @@ spec:
       name: mariadbs.com.gunjangarge.operator.mariadb
       version: v1
   description: This is mariadb operator using ansible
-  displayName: MariaDB Operator using Ansible
+  displayName: Mariadb Operator Ansible
   icon:
   - base64data: ""
     mediatype: "image/png"
@@ -183,4 +185,5 @@ spec:
   maturity: alpha
   provider: 
    name: Gunjan Garge
-  version: 0.0.1
+  replaces: mariadb-operator-ansible.v0.0.1
+  version: 0.0.2

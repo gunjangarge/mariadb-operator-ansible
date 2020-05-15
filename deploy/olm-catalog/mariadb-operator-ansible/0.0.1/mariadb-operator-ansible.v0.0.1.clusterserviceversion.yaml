@@ -22,16 +22,29 @@ metadata:
         }
       ]
     capabilities: Basic Install
+    categories: Database
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v1 
+    createdAt: 2020-04-21 11:17:00
+    description: Create mariadb server and database on Kubernetes
+    repository: https://github.com/gunjangarge/mariadb-operator-ansible
+    support: Gunjan Garge
+    certified: 'false'
   name: mariadb-operator-ansible.v0.0.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
-  customresourcedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Represents a resource for managing MariaDB database
+      kind: MariaDB
+      displayName: MariaDB Operator using Ansible
+      name: mariadbs.com.gunjangarge.operator.mariadb
+      version: v1
   description: Placeholder description
   displayName: Mariadb Operator Ansible
   icon:
   - base64data: ""
-    mediatype: ""
+    mediatype: "image/png"
   install:
     spec:
       deployments:
@@ -63,7 +76,7 @@ spec:
                   value: explicit
                 - name: ANSIBLE_DEBUG_LOGS
                   value: "True"
-                image: quay.io/gunjangarge/mariadb-operator-ansible:v2
+                image: quay.io/gunjangarge/mariadb-operator-ansible:v1
                 imagePullPolicy: IfNotPresent
                 name: mariadb-operator
                 resources: {}
@@ -162,10 +175,11 @@ spec:
   - supported: true
     type: AllNamespaces
   keywords:
-  - ""
+  - "mariadb operator ansible"
   maintainers:
-  - {}
+  - name: Gunjan Garge
+    email : gunjangarge@gmail.com
   maturity: alpha
-  provider: {}
-  replaces: mariadb-operator-ansible.v0.0.0
+  provider: 
+   name: Gunjan Garge
   version: 0.0.1

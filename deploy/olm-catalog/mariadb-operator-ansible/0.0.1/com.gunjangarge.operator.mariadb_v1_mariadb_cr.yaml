@@ -1,0 +1,13 @@
+apiVersion: com.gunjangarge.operator.mariadb/v1
+kind: MariaDB
+metadata:
+  name: mariadb-instance
+spec:
+  # Add fields here
+  size: 3
+  mysql_root_password: password
+  db_image: mariadb:10.4
+  mysql_database: sample1
+  mysql_user: john1
+  mysql_user_password: john1
+  mysql_conn_service_port: 32000

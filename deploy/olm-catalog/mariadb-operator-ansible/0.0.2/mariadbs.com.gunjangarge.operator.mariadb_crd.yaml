@@ -3,6 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   name: mariadbs.com.gunjangarge.operator.mariadb
 spec:
+  version: v1
   group: com.gunjangarge.operator.mariadb
   names:
     kind: MariaDB
