@@ -11,5 +11,9 @@ spec:
   mysql_user: john1
   mysql_user_password: john1
   mysql_conn_service_port: 32000
-  external_data_storage:
-    pvc_name: mariadb-pvc
+  external_data_storage_persistent_volume_selector_label:
+    db: mariadb-data-volume
+  persistent_volume_claim:
+    claim_size: 111Mi
+    storage_class_name: manual
+    access_mode: ReadWriteOnce

@@ -4,7 +4,7 @@ kubectl create -f deploy/service_account.yaml
 kubectl create -f deploy/role.yaml
 kubectl create -f deploy/role_binding.yaml
 kubectl create -f deploy/operator.yaml
-kubectl create namespace abcns
+kubectl create namespace mariadb-ns
 kubectl create -f volume.yaml
 #sleep 30
 for x in {10..1}

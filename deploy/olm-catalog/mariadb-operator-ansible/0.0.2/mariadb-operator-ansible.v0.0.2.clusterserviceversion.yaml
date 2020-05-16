@@ -9,7 +9,7 @@ metadata:
           "kind": "MariaDB",
           "metadata": {
             "name": "mariadb-instance",
-            "namespace": "abcns"
+            "namespace": "mariadb-ns"
           },
           "spec": {
             "db_image": "mariadb:10.4",
@@ -21,6 +21,11 @@ metadata:
             "mysql_root_password": "password",
             "mysql_user": "john",
             "mysql_user_password": "john123",
+            "persistent_volume_claim": {
+              "access_mode": "ReadWriteOnce",
+              "claim_size": "111Mi",
+              "storage_class_name": "manual"
+            },
             "size": 1
           }
         }

@@ -2,7 +2,7 @@ apiVersion: com.gunjangarge.operator.mariadb/v1
 kind: MariaDB
 metadata:
   name: mariadb-instance
-  namespace: abcns
+  namespace: mariadb-ns
 spec:
   # Add fields here
   size: 1
@@ -14,3 +14,7 @@ spec:
   mysql_conn_service_port: 32000
   external_data_storage_persistent_volume_selector_label:
     db: mariadb-data-volume
+  persistent_volume_claim:
+    claim_size: 111Mi
+    storage_class_name: manual
+    access_mode: ReadWriteOnce  

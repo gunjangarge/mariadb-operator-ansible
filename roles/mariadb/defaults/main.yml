@@ -7,3 +7,7 @@ mysql_database: sample
 mysql_user: john
 mysql_user_password: john123
 mysql_conn_service_port: 32000
+persistent_volume_claim:
+  claim_size: 200Mi
+  storage_class_name: manual
+  access_mode: ReadWriteOnce 
