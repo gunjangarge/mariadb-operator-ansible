@@ -8,30 +8,31 @@ metadata:
           "apiVersion": "com.gunjangarge.operator.mariadb/v1",
           "kind": "MariaDB",
           "metadata": {
-            "name": "mariadb-instance"
+            "name": "mariadb-instance",
+            "namespace": "abcns"
           },
           "spec": {
             "db_image": "mariadb:10.4",
-            "external_data_storage": {
-              "pvc_name": "mariadb-pvc"
+            "external_data_storage_persistent_volume_selector_label": {
+              "db": "mariadb-data-volume"
             },
             "mysql_conn_service_port": 32000,
-            "mysql_database": "sample1",
+            "mysql_database": "sample",
             "mysql_root_password": "password",
-            "mysql_user": "john1",
-            "mysql_user_password": "john1",
+            "mysql_user": "john",
+            "mysql_user_password": "john123",
             "size": 1
           }
         }
       ]
     capabilities: Basic Install
     categories: Database
-    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2 
-    createdAt: 2020-04-21 11:17:00
+    certified: "false"
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2
+    createdAt: "2020-04-21 11:17:00"
     description: Create mariadb server and database on Kubernetes
     repository: https://github.com/gunjangarge/mariadb-operator-ansible
     support: Gunjan Garge
-    certified: 'false'
   name: mariadb-operator-ansible.v0.0.2
   namespace: placeholder
 spec:
@@ -39,17 +40,94 @@ spec:
   customresourcedefinitions:
     owned:
     - description: Represents a resource for managing MariaDB database
-      kind: MariaDB
       displayName: MariaDB Operator using Ansible
+      kind: MariaDB
       name: mariadbs.com.gunjangarge.operator.mariadb
       version: v1
   description: This is mariadb operator using ansible
   displayName: Mariadb Operator Ansible
   icon:
   - base64data: ""
-    mediatype: "image/png"
+    mediatype: image/png
   install:
     spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - mariadb-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - com.gunjangarge.operator.mariadb
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: mariadb-operator
       deployments:
       - name: mariadb-operator
         spec:
@@ -178,12 +256,12 @@ spec:
   - supported: true
     type: AllNamespaces
   keywords:
-  - "mariadb operator ansible"
+  - mariadb operator ansible
   maintainers:
-  - name: Gunjan Garge
-    email : gunjangarge@gmail.com
+  - email: gunjangarge@gmail.com
+    name: Gunjan Garge
   maturity: alpha
-  provider: 
-   name: Gunjan Garge
+  provider:
+    name: Gunjan Garge
   replaces: mariadb-operator-ansible.v0.0.1
   version: 0.0.2

@@ -5,6 +5,7 @@ kubectl delete -f deploy/role_binding.yaml
 kubectl delete -f deploy/role.yaml
 kubectl delete -f deploy/service_account.yaml
 kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_mariadbs_crd.yaml 
-kubectl delete -f volume.yaml
-#operator-sdk build quay.io/gunjangarge/mariadb-operator-ansible:v2
+kubectl delete -f volume.yaml -n abcns
+kubectl delete namespace abcns
+operator-sdk build quay.io/gunjangarge/mariadb-operator-ansible:v2
 

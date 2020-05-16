@@ -30,12 +30,12 @@ spec:
           name: mariadb
           ports: 
             - containerPort: 3306
-{% if external_data_storage.pvc_name is defined %}
+#{% if external_data_storage_persistent_volume_selector_label is defined %}
           volumeMounts:
           - mountPath: /var/lib/mysql
             name: mariadb-data
       volumes:
         - name: mariadb-data
           persistentVolumeClaim:
-            claimName: {{external_data_storage.pvc_name}}
-{% endif %}
+            claimName: mariadb-persistent-volume-claim-{{meta.namespace}}
+#{% endif %}

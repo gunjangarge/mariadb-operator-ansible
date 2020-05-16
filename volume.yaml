@@ -3,7 +3,7 @@ kind: PersistentVolume
 metadata:
     name: mariadb-pv
     labels:
-      db: mariadb
+      db: mariadb-data-volume
 spec:
     storageClassName: manual
     capacity: 
@@ -12,18 +12,18 @@ spec:
         - ReadWriteOnce
     hostPath:
         path: "/mariadb/data"
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-    name: mariadb-pvc
-spec:
-    storageClassName: manual
-    accessModes:
-        - ReadWriteOnce
-    resources:
-        requests:
-            storage: 1Gi
-    selector:
-        matchLabels:
-            db: mariadb
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#    name: mariadb-pvc
+#spec:
+#    storageClassName: manual
+#    accessModes:
+#        - ReadWriteOnce
+#    resources:
+#        requests:
+#            storage: 1Gi
+#    selector:
+#        matchLabels:
+#            db: mariadb

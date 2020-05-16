@@ -13,12 +13,12 @@
 #         - ReadWriteOnce
 #     hostPath:
 #         path: "/mariadb/data"
-
 # ---
 # apiVersion: v1
 # kind: PersistentVolumeClaim
 # metadata:
 #     name: mariadb-persistent-volume-claim-{{meta.namespace}}
+#     namespace: "{{meta.namespace}}"
 # spec:
 #     storageClassName: manual
 #     accessModes: 
