@@ -13,17 +13,17 @@ This is mariadb operator using Ansible
 2. Deploy operator CRD into your cluster
 
    ```
-   kubectl apply -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/crds/com.gunjangarge.operator.mariadb_mariadbs_crd.yaml
+   kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_mariadbs_crd.yaml
    
    ```
 
 3. Deploy operator
 
    ```
-   $ kubectl create -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/service_account.yaml
-   $ kubectl create -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/role.yaml
-   $ kubectl create -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/role_binding.yaml
-   $ kubectl create -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/operator.yaml
+   $ kubectl create -f deploy/service_account.yaml
+   $ kubectl create -f deploy/role.yaml
+   $ kubectl create -f deploy/role_binding.yaml
+   $ kubectl create -f deploy/operator.yaml
    ```
 
 4. Verify that the operator is up and running:
@@ -44,6 +44,7 @@ This is mariadb operator using Ansible
    kind: MariaDB
    metadata:
      name: mariadb-instance
+     namespace: mariadb-ns
    spec:
      # Add fields here
      size: 1 # in case you are using persistent volume and persistent volume claim, keep size  equal to 1
@@ -53,17 +54,11 @@ This is mariadb operator using Ansible
      mysql_user: john1
      mysql_user_password: john1
      mysql_conn_service_port: 32000
+     external_data_storage_persistent_volume_selector_label:
+      db: mariadb-data-volume
    ```
 
-   5.2 (Optional) In case you want to use Persistent Volume to store data, include below parameters in above CR.
-
-   ```
-   external_data_storage:
-      pvc_name: mariadb-pvc
-
-   ```
-
-   Create Persistent Volume and Persistent Volume claim file as below
+   5.2 Create Persistent Volume as below
 
    ```
       apiVersion: v1
@@ -71,7 +66,7 @@ This is mariadb operator using Ansible
       metadata:
          name: mariadb-pv
          labels:
-            db: mariadb
+            db: mariadb-data-volume
       spec:
          storageClassName: manual
          capacity: 
@@ -80,33 +75,18 @@ This is mariadb operator using Ansible
             - ReadWriteOnce
          hostPath:
             path: "/mariadb/data"
-      ---
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-         name: mariadb-pvc
-      spec:
-         storageClassName: manual
-         accessModes:
-            - ReadWriteOnce
-         resources:
-            requests:
-                  storage: 1Gi
-         selector:
-            matchLabels:
-                  db: mariadb
 
    ```
-      Apply PV and PVC on cluster
+   5.3 Apply PV on cluster
 
    ```  
-   $ kubectl apply -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/volume.yaml
+   $ kubectl apply -f volume.yaml
    ```
 
-   5.3 Apply CR on cluster
+   5.4 Apply CR on cluster
 
    ```
-   $ kubectl apply -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
+   $ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
 
    ```
 
@@ -176,11 +156,12 @@ This is mariadb operator using Ansible
 Clean up the resources:
 
    ```
-    $ kubectl delete -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
-    $ kubectl delete -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/operator.yaml
-    $ kubectl delete -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/role_binding.yaml
-    $ kubectl delete -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/role.yaml
-    $ kubectl delete -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/service_account.yaml
-    $ kubectl delete -f https://github.com/gunjangarge/mariadb-operator-ansible/blob/master/deploy/crds/com.gunjangarge.operator.mariadb_mariadbs_crd.yaml
+    $ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
+    $ kubectl delete -f deploy/operator.yaml
+    $ kubectl delete -f deploy/role_binding.yaml
+    $ kubectl delete -f deploy/role.yaml
+    $ kubectl delete -f deploy/service_account.yaml
+    $ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_mariadbs_crd.yaml
+    $ kubectl delete -f volume.yaml
 
    ```
