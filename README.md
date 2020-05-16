@@ -44,6 +44,7 @@ This is mariadb operator using Ansible
    kind: MariaDB
    metadata:
      name: mariadb-instance
+     namespace: mariadb-ns
    spec:
      # Add fields here
      size: 1 # in case you are using persistent volume and persistent volume claim, keep size  equal to 1
