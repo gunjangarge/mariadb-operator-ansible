@@ -56,6 +56,10 @@ This is mariadb operator using Ansible
      mysql_conn_service_port: 32000
      external_data_storage_persistent_volume_selector_label:
       db: mariadb-data-volume
+     persistent_volume_claim:
+      claim_size: 1Gi
+      storage_class_name: manual
+      access_mode: ReadWriteOnce
    ```
 
    5.2 Create Persistent Volume as below
