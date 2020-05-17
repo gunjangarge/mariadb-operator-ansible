@@ -28,32 +28,65 @@ metadata:
             },
             "size": 1
           }
+        },
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDBBackup",
+          "metadata": {
+            "name": "mariadbbackup-instance",
+            "namespace": "mariadb-ns"
+          },
+          "spec": {
+            "db_image": "mariadb:10.4",
+            "external_data_storage_mariadb_backup_persistent_volume_selector_label": {
+              "db": "mariadb-databackup-volume"
+            },
+            "mariadb_backup_persistent_volume_claim": {
+              "access_mode": "ReadWriteOnce",
+              "claim_size": "111Mi",
+              "storage_class_name": "manual"
+            },
+            "mariadb_backup_schedule": "*/15 * * * *",
+            "mariadb_mysqldump_options": "--flush-privileges --skip-lock-tables",
+            "mysql_database_to_backup": "sample",
+            "mysql_user": "john",
+            "mysql_user_password": "john123"
+          }
+        },
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDBRestore",
+          "metadata": {
+            "name": "example-mariadbrestore"
+          },
+          "spec": {
+            "size": 3
+          }
         }
       ]
-    capabilities: Seamless Upgrades
-    categories: Database
-    certified: "false"
-    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2
-    createdAt: "2020-04-21 11:17:00"
-    description: Create mariadb server and database on Kubernetes
-    repository: https://github.com/gunjangarge/mariadb-operator-ansible
+    capabilities: Full Lifecycle
+    categories: Database	
+    certified: "false"	
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2	
+    createdAt: "2020-04-21 11:17:00"	
+    description: Create mariadb server and database on Kubernetes	
+    repository: https://github.com/gunjangarge/mariadb-operator-ansible	
     support: Gunjan Garge
-  name: mariadb-operator-ansible.v0.0.2
+  name: mariadb-operator-ansible.v0.0.3
   namespace: placeholder
 spec:
-  apiservicedefinitions: {}
-  customresourcedefinitions:
-    owned:
-    - description: Represents a resource for managing MariaDB database
-      displayName: MariaDB Operator using Ansible
-      kind: MariaDB
-      name: mariadbs.com.gunjangarge.operator.mariadb
-      version: v1
+	customresourcedefinitions:	
+    owned:	
+    - description: Represents a resource for managing MariaDB database	
+      displayName: MariaDB Operator using Ansible	
+      kind: MariaDB	
+      name: mariadbs.com.gunjangarge.operator.mariadb	
+      version: v1	
   description: This is mariadb operator using ansible
   displayName: Mariadb Operator Ansible
   icon:
   - base64data: ""
-    mediatype: image/png
+    mediatype: "image/png"
   install:
     spec:
       clusterPermissions:
@@ -124,6 +157,20 @@ spec:
           - com.gunjangarge.operator.mariadb
           resources:
           - '*'
+          - mariadbbackups
+          - mariadbrestores
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - batch
+          resources:
+          - cronjobs
           verbs:
           - create
           - delete
@@ -162,7 +209,7 @@ spec:
                   value: explicit
                 - name: ANSIBLE_DEBUG_LOGS
                   value: "True"
-                image: quay.io/gunjangarge/mariadb-operator-ansible:v2
+                image: quay.io/gunjangarge/mariadb-operator-ansible:v3
                 imagePullPolicy: IfNotPresent
                 name: mariadb-operator
                 resources: {}
@@ -173,83 +220,6 @@ spec:
               volumes:
               - emptyDir: {}
                 name: runner
-      permissions:
-      - rules:
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          - services
-          - services/finalizers
-          - endpoints
-          - persistentvolumeclaims
-          - events
-          - configmaps
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resources:
-          - deployments
-          - daemonsets
-          - replicasets
-          - statefulsets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - monitoring.coreos.com
-          resources:
-          - servicemonitors
-          verbs:
-          - get
-          - create
-        - apiGroups:
-          - apps
-          resourceNames:
-          - mariadb-operator
-          resources:
-          - deployments/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          verbs:
-          - get
-        - apiGroups:
-          - apps
-          resources:
-          - replicasets
-          - deployments
-          verbs:
-          - get
-        - apiGroups:
-          - com.gunjangarge.operator.mariadb
-          resources:
-          - '*'
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        serviceAccountName: mariadb-operator
     strategy: deployment
   installModes:
   - supported: true
@@ -261,12 +231,12 @@ spec:
   - supported: true
     type: AllNamespaces
   keywords:
-  - mariadb operator ansible
-  maintainers:
-  - email: gunjangarge@gmail.com
-    name: Gunjan Garge
-  maturity: alpha
-  provider:
-    name: Gunjan Garge
-  replaces: mariadb-operator-ansible.v0.0.1
-  version: 0.0.2
+  - mariadb operator ansible	
+  maintainers:	
+  - email: gunjangarge@gmail.com	
+    name: Gunjan Garge	
+  maturity: alpha	
+  provider:	
+    name: Gunjan Garge	
+  replaces: mariadb-operator-ansible.v0.0.2
+  version: 0.0.3

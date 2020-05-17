@@ -1,0 +1,13 @@
+---
+# defaults file for mariadbbackup
+size: 1
+db_image: mariadb:latest
+mysql_database_to_backup: sample
+mysql_user: john
+mysql_user_password: john123
+mariadb_backup_schedule: "*/5 * * * *"
+mariadb_mysqldump_options: ""
+mariadb_backup_persistent_volume_claim:
+  claim_size: 200Mi
+  storage_class_name: manual
+  access_mode: ReadWriteOnce 

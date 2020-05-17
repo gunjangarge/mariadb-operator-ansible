@@ -70,6 +70,20 @@ rules:
   - com.gunjangarge.operator.mariadb
   resources:
   - '*'
+  - mariadbbackups
+  - mariadbrestores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - 'cronjobs'
   verbs:
   - create
   - delete

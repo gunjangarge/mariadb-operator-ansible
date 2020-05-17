@@ -1,0 +1,7 @@
+apiVersion: com.gunjangarge.operator.mariadb/v1
+kind: MariaDBRestore
+metadata:
+  name: example-mariadbrestore
+spec:
+  # Add fields here
+  size: 3

@@ -1,0 +1,37 @@
+---
+# tasks file for mariadbbackup
+- name: Get mariadb service ip address
+  k8s_info:
+    api_version: v1
+    kind: Service
+    name: mariadb-service
+    namespace: "{{meta.namespace}}"
+  register: mariadbserviceregister
+    
+# - name: Get mariadb service ip address from k8s_info
+#   debug:
+#     msg: "{{item}}"
+#   with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+
+- name: Set mariadb service ip address from k8s_info
+  set_fact:
+    ip: "{{item}}"
+  with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+
+- name: create cronjob for mariadb backup
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', item) | from_yaml  }}"
+  with_items:
+    - mariadb-backup-cronjob.yaml.j2
+
+- name: create pvc for mariadb backup
+  kubevirt_pvc:
+    name: "mariadb-backup-persistent-volume-claim-{{meta.namespace}}"
+    namespace: "{{meta.namespace}}"
+    size: "{{mariadb_backup_persistent_volume_claim.claim_size}}"
+    storage_class_name: "{{mariadb_backup_persistent_volume_claim.storage_class_name}}"
+    access_modes:
+        - "{{mariadb_backup_persistent_volume_claim.access_mode}}"
+    selector:
+        matchLabels:
+          "{{external_data_storage_mariadb_backup_persistent_volume_selector_label}}"

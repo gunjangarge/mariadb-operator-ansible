@@ -1,0 +1,27 @@
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+ name: mariadb-backup
+ namespace: "{{meta.namespace}}"
+spec:
+ schedule: "{{mariadb_backup_schedule}}"
+ jobTemplate:
+  spec:
+   template:
+    spec:
+      containers:
+      - name: mariadb-backup-{{meta.namespace}}
+        image: "{{db_image}}"
+        args:
+        - /bin/sh
+        - -c
+        - mysqldump -h {{ip}} -P 3306 -u {{mysql_user}} -p{{mysql_user_password}} --databases {{mysql_database_to_backup}} {{mariadb_mysqldump_options}} > /opt/mysqldump-{{mysql_database_to_backup}}-$(date +'%Y-%b-%d-%H%M%S%Z').sql
+        volumeMounts:
+        - mountPath: /opt
+          name: mariadb-databackup
+      restartPolicy: OnFailure
+      volumes:
+        - name: mariadb-databackup
+          persistentVolumeClaim:
+            claimName: mariadb-backup-persistent-volume-claim-{{meta.namespace}}

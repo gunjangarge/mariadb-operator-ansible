@@ -9,3 +9,5 @@ COPY watches.yaml ${HOME}/watches.yaml
 COPY roles/ ${HOME}/roles/
 
 COPY playbook.yaml ${HOME}/playbook.yaml
+COPY playbook_backup.yaml ${HOME}/playbook_backup.yaml
+# COPY playbook_restore.yaml ${HOME}/playbook_restore.yaml

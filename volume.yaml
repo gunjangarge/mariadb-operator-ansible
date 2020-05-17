@@ -12,6 +12,21 @@ spec:
         - ReadWriteOnce
     hostPath:
         path: "/mariadb/data"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: mariadb-backup-pv
+    labels:
+      db: mariadb-databackup-volume
+spec:
+    storageClassName: manual
+    capacity: 
+        storage: 1Gi
+    accessModes:
+        - ReadWriteOnce
+    hostPath:
+        path: "/mariadb/databackup"        
 #---
 #apiVersion: v1
 #kind: PersistentVolumeClaim
