@@ -159,7 +159,7 @@ mysql>
 
 ```
 
-## Mariadb Backup
+## Mariadb database backup
 
 ### Create Persistent Volume for backup activities
 
@@ -281,21 +281,27 @@ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_
 
 ```
 $ kubectl get all -n mariadb-ns
-NAME                             READY   STATUS      RESTARTS   AGE
-pod/mariadb-instance-mariadb-0   1/1     Running     0          88s
-pod/mariadb-restore-t6dzk        0/1     Completed   0          10s
+NAME                                    READY   STATUS      RESTARTS   AGE
+pod/mariadb-backup-1589822400-qn8bs     0/1     Completed   0          108s
+pod/mariadb-instance-79f94f9767-lmkp7   1/1     Running     0          3m53s
+pod/mariadb-restore-d2qp9               0/1     Completed   0          43s
 
-NAME                      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
-service/mariadb-service   NodePort   10.108.101.181   <none>        3306:32000/TCP   86s
+NAME                      TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/mariadb-service   NodePort   10.104.135.24   <none>        3306:32000/TCP   3m51s
 
-NAME                                        READY   AGE
-statefulset.apps/mariadb-instance-mariadb   1/1     88s
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mariadb-instance   1/1     1            1           3m53s
 
-NAME                        COMPLETIONS   DURATION   AGE
-job.batch/mariadb-restore   1/1           5s         10s
+NAME                                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/mariadb-instance-79f94f9767   1         1         1       3m53s
 
-NAME                           SCHEDULE       SUSPEND   ACTIVE   LAST SCHEDULE   AGE
-cronjob.batch/mariadb-backup   */15 * * * *   False     0        <none>          82s
+NAME                                  COMPLETIONS   DURATION   AGE
+job.batch/mariadb-backup-1589822400   1/1           5s         108s
+job.batch/mariadb-restore             1/1           4s         43s
+
+NAME                           SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cronjob.batch/mariadb-backup   */5 * * * *   False     0        117s            3m53s
+
 
 ```
 
