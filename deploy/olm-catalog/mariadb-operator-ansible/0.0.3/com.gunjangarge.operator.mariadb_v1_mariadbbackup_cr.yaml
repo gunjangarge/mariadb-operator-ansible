@@ -9,7 +9,7 @@ spec:
   mysql_database_to_backup: sample
   mysql_user: john
   mysql_user_password: john123
-  mariadb_backup_schedule: "*/5 * * * *"
+  mariadb_backup_schedule: "*/15 * * * *"
   mariadb_mysqldump_options: "--flush-privileges --skip-lock-tables"
   external_data_storage_mariadb_backup_persistent_volume_selector_label:
     db: mariadb-databackup-volume

@@ -1,7 +1,7 @@
 apiVersion: com.gunjangarge.operator.mariadb/v1
 kind: MariaDBRestore
 metadata:
-  name: mariadb-restore-instance
+  name: mariad-brestore-instance
   namespace: mariadb-ns
 spec:
   # Add fields here

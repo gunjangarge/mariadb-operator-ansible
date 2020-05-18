@@ -9,7 +9,7 @@
   kind: MariaDBBackup
   playbook: playbook_backup.yaml
 
-# - version: v1
-#   group: com.gunjangarge.operator.mariadb
-#   kind: MariaDBRestore
-#   playbook: playbook_restore.yaml
+- version: v1
+  group: com.gunjangarge.operator.mariadb
+  kind: MariaDBRestore
+  playbook: playbook_restore.yaml

@@ -16,7 +16,7 @@ spec:
         args:
         - /bin/sh
         - -c
-        - mysqldump -h {{ip}} -P 3306 -u {{mysql_user}} -p{{mysql_user_password}} --databases {{mysql_database_to_backup}} {{mariadb_mysqldump_options}} > /opt/mysqldump-{{mysql_database_to_backup}}-$(date +'%Y-%b-%d-%H%M%S%Z').sql
+        - mysqldump -h mariadb-service.{{meta.namespace}} -P 3306 -u {{mysql_user}} -p{{mysql_user_password}} --databases {{mysql_database_to_backup}} {{mariadb_mysqldump_options}} > /opt/mysqldump-{{mysql_database_to_backup}}-$(date +'%Y-%b-%d-%H%M%S%Z').sql
         volumeMounts:
         - mountPath: /opt
           name: mariadb-databackup

@@ -1,13 +1,11 @@
 --- 
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata: 
-  name: "{{meta.name}}-mariadb"
+  name: "{{meta.name}}"
   namespace: "{{meta.namespace}}"
 spec: 
   replicas: {{size}}
-  updateStrategy:
-    type: RollingUpdate
   selector: 
     matchLabels: 
       app: mariadb
@@ -27,10 +25,9 @@ spec:
             - name: MYSQL_PASSWORD
               value: "{{mysql_user_password}}"
           image: "{{db_image}}"
-          name: mariadb
+          name: mariadb-container
           ports: 
             - containerPort: 3306
-{# {% if external_data_storage_persistent_volume_selector_label is defined %} #}
           volumeMounts:
           - mountPath: /var/lib/mysql
             name: mariadb-data
@@ -38,4 +35,3 @@ spec:
         - name: mariadb-data
           persistentVolumeClaim:
             claimName: mariadb-persistent-volume-claim-{{meta.namespace}}
-{# {% endif %} #}

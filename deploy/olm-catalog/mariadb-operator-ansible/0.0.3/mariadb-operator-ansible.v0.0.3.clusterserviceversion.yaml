@@ -57,36 +57,42 @@ metadata:
           "apiVersion": "com.gunjangarge.operator.mariadb/v1",
           "kind": "MariaDBRestore",
           "metadata": {
-            "name": "example-mariadbrestore"
+            "name": "mariadbrestore-instance",
+            "namespace": "mariadb-ns"
           },
           "spec": {
-            "size": 3
+            "db_image": "mariadb:10.4",
+            "mysql_database_to_restore": "sample",
+            "mysql_restore_sql_file": "mysqldump-sample-2020-May-18-063009UTC.sql",
+            "mysql_user": "john",
+            "mysql_user_password": "john123"
           }
         }
       ]
     capabilities: Full Lifecycle
-    categories: Database	
-    certified: "false"	
-    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2	
-    createdAt: "2020-04-21 11:17:00"	
-    description: Create mariadb server and database on Kubernetes	
-    repository: https://github.com/gunjangarge/mariadb-operator-ansible	
+    categories: Database
+    certified: "false"
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2
+    createdAt: "2020-04-21 11:17:00"
+    description: Create mariadb server and database on Kubernetes
+    repository: https://github.com/gunjangarge/mariadb-operator-ansible
     support: Gunjan Garge
   name: mariadb-operator-ansible.v0.0.3
   namespace: placeholder
 spec:
-	customresourcedefinitions:	
-    owned:	
-    - description: Represents a resource for managing MariaDB database	
-      displayName: MariaDB Operator using Ansible	
-      kind: MariaDB	
-      name: mariadbs.com.gunjangarge.operator.mariadb	
-      version: v1	
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Represents a resource for managing MariaDB database
+      displayName: MariaDB Operator using Ansible
+      kind: MariaDB
+      name: mariadbs.com.gunjangarge.operator.mariadb
+      version: v1
   description: This is mariadb operator using ansible
   displayName: Mariadb Operator Ansible
   icon:
   - base64data: ""
-    mediatype: "image/png"
+    mediatype: image/png
   install:
     spec:
       clusterPermissions:
@@ -171,6 +177,7 @@ spec:
           - batch
           resources:
           - cronjobs
+          - jobs
           verbs:
           - create
           - delete
@@ -231,12 +238,12 @@ spec:
   - supported: true
     type: AllNamespaces
   keywords:
-  - mariadb operator ansible	
-  maintainers:	
-  - email: gunjangarge@gmail.com	
-    name: Gunjan Garge	
-  maturity: alpha	
-  provider:	
-    name: Gunjan Garge	
+  - mariadb operator ansible
+  maintainers:
+  - email: gunjangarge@gmail.com
+    name: Gunjan Garge
+  maturity: alpha
+  provider:
+    name: Gunjan Garge
   replaces: mariadb-operator-ansible.v0.0.2
   version: 0.0.3

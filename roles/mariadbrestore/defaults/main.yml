@@ -1,2 +1,7 @@
 ---
 # defaults file for mariadbrestore
+size: 1
+db_image: mariadb:latest
+mysql_database_to_backup: sample
+mysql_user: john
+mysql_user_password: john123

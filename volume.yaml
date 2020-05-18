@@ -24,21 +24,7 @@ spec:
     capacity: 
         storage: 1Gi
     accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
     hostPath:
         path: "/mariadb/databackup"        
-#---
-#apiVersion: v1
-#kind: PersistentVolumeClaim
-#metadata:
-#    name: mariadb-pvc
-#spec:
-#    storageClassName: manual
-#    accessModes:
-#        - ReadWriteOnce
-#    resources:
-#        requests:
-#            storage: 1Gi
-#    selector:
-#        matchLabels:
-#            db: mariadb
+
