@@ -1,7 +1,7 @@
 apiVersion: com.gunjangarge.operator.mariadb/v1
 kind: MariaDB
 metadata:
-  name: mariadb-instance
+  name: mariadb
   namespace: mariadb-ns
 spec:
   # Add fields here

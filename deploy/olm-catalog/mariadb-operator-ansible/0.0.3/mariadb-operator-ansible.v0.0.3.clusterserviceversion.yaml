@@ -72,7 +72,7 @@ metadata:
     capabilities: Full Lifecycle
     categories: Database
     certified: "false"
-    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v2
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v3
     createdAt: "2020-04-21 11:17:00"
     description: Create mariadb server and database on Kubernetes
     repository: https://github.com/gunjangarge/mariadb-operator-ansible
@@ -88,6 +88,16 @@ spec:
       kind: MariaDB
       name: mariadbs.com.gunjangarge.operator.mariadb
       version: v1
+    - description: Represents a resource for backup MariaDB database
+      displayName: MariaDB Operator Backup using Ansible
+      kind: MariaDBBackup
+      name: mariadbbackups.com.gunjangarge.operator.mariadb
+      version: v1
+    - description: Represents a resource for restore MariaDB database
+      displayName: MariaDB Operator Restore using Ansible
+      kind: MariaDBRestore
+      name: mariadbrestores.com.gunjangarge.operator.mariadb
+      version: v1      
   description: This is mariadb operator using ansible
   displayName: Mariadb Operator Ansible
   icon:

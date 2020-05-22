@@ -4,6 +4,9 @@ kind: Deployment
 metadata: 
   name: "{{meta.name}}"
   namespace: "{{meta.namespace}}"
+  labels:
+    app: mariadb
+    mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
 spec: 
   replicas: {{size}}
   selector: 
@@ -13,6 +16,7 @@ spec:
     metadata: 
       labels: 
         app: mariadb
+        mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
     spec: 
       containers: 
         - env: 
@@ -27,7 +31,8 @@ spec:
           image: "{{db_image}}"
           name: mariadb-container
           ports: 
-            - containerPort: 3306
+            - name: mariadb-port
+              containerPort: 3306
           volumeMounts:
           - mountPath: /var/lib/mysql
             name: mariadb-data

@@ -1,7 +1,7 @@
 apiVersion: com.gunjangarge.operator.mariadb/v1
 kind: MariaDBBackup
 metadata:
-  name: mariadb-backup-instance
+  name: mariadb-backup
   namespace: mariadb-ns # same as mariadb
 spec:
   # Add fields here
@@ -9,7 +9,7 @@ spec:
   mysql_database_to_backup: sample
   mysql_user: john
   mysql_user_password: john123
-  mariadb_backup_schedule: "*/5 * * * *"
+  mariadb_backup_schedule: "*/15 * * * *"
   mariadb_mysqldump_options: "--flush-privileges --skip-lock-tables"
   external_data_storage_mariadb_backup_persistent_volume_selector_label:
     db: mariadb-databackup-volume

@@ -12,6 +12,9 @@
   kubevirt_pvc:
     name: "mariadb-persistent-volume-claim-{{meta.namespace}}"
     namespace: "{{meta.namespace}}"
+    labels:
+      app: mariadb
+      mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
     size: "{{persistent_volume_claim.claim_size}}"
     storage_class_name: "{{persistent_volume_claim.storage_class_name}}"
     access_modes:

@@ -4,11 +4,15 @@ kind: Service
 metadata:
   name: mariadb-service
   namespace: "{{meta.namespace}}"
+  labels:
+    app: mariadb
+    mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
 spec: 
   ports: 
     - nodePort: {{mysql_conn_service_port}}
       port: 3306
       targetPort: 3306
+      name: mariadb-port
   selector: 
     app: mariadb
   type: NodePort
