@@ -9,4 +9,4 @@ spec:
   mysql_database_to_restore: sample
   mysql_user: john
   mysql_user_password: john123
-  mysql_restore_sql_file: "mysqldump-sample-2020-May-18-063009UTC.sql"
+  mysql_restore_sql_file: "mysqldump-sample-2020-May-23-181506UTC.sql"
