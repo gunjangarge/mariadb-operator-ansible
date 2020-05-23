@@ -1,0 +1,29 @@
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: "{{meta.name}}"
+  namespace: "{{meta.namespace}}"
+  labels:
+    app: mariadb-monitor
+    mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
+spec: 
+  replicas: {{size}}
+  selector: 
+    matchLabels: 
+      app: mariadb-monitor
+  template: 
+    metadata: 
+      labels: 
+        app: mariadb-monitor
+        mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
+    spec: 
+      containers: 
+        - env: 
+            - name: DATA_SOURCE_NAME
+              value: "{{data_source_name}}"
+          image: "{{prometheus_mysqlexportor_image}}"
+          name: mariadb-monitor-container
+          ports: 
+            - name: monitor-port
+              containerPort: 9104

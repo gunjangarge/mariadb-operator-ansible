@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prometheus-mariadb-service-monitor
+  labels:
+    k8s-app: prometheus-mariadb-service-monitor
+  namespace: operators
+spec:
+  namespaceSelector:
+    matchNames:
+      - mariadb-ns
+  selector:
+    matchLabels:
+      app: mariadb-monitor
+  endpoints:
+    - interval: 10s
+      port: monitor-port

@@ -13,3 +13,8 @@
   group: com.gunjangarge.operator.mariadb
   kind: MariaDBRestore
   playbook: playbook_restore.yaml
+
+- version: v1
+  group: com.gunjangarge.operator.mariadb
+  kind: MariaDBMonitor
+  playbook: playbook_monitor.yaml

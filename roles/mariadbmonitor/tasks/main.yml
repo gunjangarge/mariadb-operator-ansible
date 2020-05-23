@@ -1,0 +1,8 @@
+---
+# tasks file for mariadbmonitor
+- name: create mariadb monitor
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', item) | from_yaml  }}"
+  with_items:
+    - mariadb-monitor-deployment.yaml.j2
+    - mariadb-monitor-service.yaml.j2

@@ -55,6 +55,20 @@ metadata:
         },
         {
           "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDBMonitor",
+          "metadata": {
+            "name": "mariadb-monitor",
+            "namespace": "mariadb-ns"
+          },
+          "spec": {
+            "data_source_name": "john:john123@(mariadb-service.mariadb-ns:3306)/sample",
+            "monitor_service_port": 32500,
+            "prometheus_mysqlexportor_image": "prom/mysqld-exporter",
+            "size": 1
+          }
+        },
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
           "kind": "MariaDBRestore",
           "metadata": {
             "name": "mariadb-restore",
@@ -69,15 +83,15 @@ metadata:
           }
         }
       ]
-    capabilities: Full Lifecycle
+    capabilities: Deep Insights
     categories: Database
     certified: "false"
-    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v3
-    createdAt: "2020-04-21 11:17:00"
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v4
+    createdAt: "2020-05-23 11:17:00"
     description: Create mariadb server and database on Kubernetes
     repository: https://github.com/gunjangarge/mariadb-operator-ansible
-    support: Gunjan Garge
-  name: mariadb-operator-ansible.v0.0.3
+    support: Gunjan Garge    
+  name: mariadb-operator-ansible.v0.0.4
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -98,11 +112,15 @@ spec:
       kind: MariaDBRestore
       name: mariadbrestores.com.gunjangarge.operator.mariadb
       version: v1
-  description: This is mariadb operator using ansible
+    - description: Represents a resource for monitor MariaDB database
+      displayName: MariaDB Operator Monitoring using Ansible
+      kind: MariaDBMonitor
+      name: mariadbmonitors.com.gunjangarge.operator.mariadb
+      version: v1      
   displayName: Mariadb Operator Ansible
   icon:
   - base64data: ""
-    mediatype: image/png
+    mediatype: "image/png"
   install:
     spec:
       clusterPermissions:
@@ -226,7 +244,7 @@ spec:
                   value: explicit
                 - name: ANSIBLE_DEBUG_LOGS
                   value: "True"
-                image: quay.io/gunjangarge/mariadb-operator-ansible:v3
+                image: quay.io/gunjangarge/mariadb-operator-ansible:v4
                 imagePullPolicy: IfNotPresent
                 name: mariadb-operator
                 resources: {}
@@ -255,5 +273,4 @@ spec:
   maturity: alpha
   provider:
     name: Gunjan Garge
-  replaces: mariadb-operator-ansible.v0.0.2
-  version: 0.0.3
+  version: 0.0.4
