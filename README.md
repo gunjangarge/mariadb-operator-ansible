@@ -6,31 +6,74 @@ This is mariadb operator using Ansible.
 - [x] Basic Install
 - [x] Seamless Upgrades
 - [x] Backup and restore
-- [x] Monitoring/Deep Insights
+- [x] Monitoring
+
+## TL;DR
+
+### Create Mariadb, Backup cronjob, Restore job and Monitor resource
+
+```console
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml
+kubectl create namespace mariadb-ns
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/volume.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
+# Run only when you need to monitor database
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/prometheus-monitoring/prometheus.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/prometheus-monitoring/servicemonitor.yaml
+kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
+# Run only when you need to restore database
+# kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
+
+```
+
+### Cleanup everything
+
+[Cleanup](https://github.com/gunjangarge/mariadb-operator-ansible#cleanup) - clean up everything
 
 ## Setup Instructions
 
 ### Create namespace (optional)
 
-   ```console
-   $ kubectl create namespace mariadb-ns
-   ```
+```console
+# kubectl create namespace mariadb-ns
+namespace/mariadb-ns created
+```
 
-   Note that if you want to create resources under a namespace, you would need to append `-n <namespace>` to `kubectl` command.
+Note that if you want to create resources under a namespace, you would need to append `-n <namespace>` to `kubectl` command.
 
-### Deploy Mariadb Operator CRD into your cluster
+### Deploy all Mariadb Operator CRDs into your cluster
 
 ```console
-$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_mariadbs_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+```
+### Verify all CRDs are deployed
+```console
+$ kubectl get crds
+NAME                                               CREATED AT
+mariadbbackups.com.gunjangarge.operator.mariadb    2020-05-23T14:33:38Z
+mariadbmonitors.com.gunjangarge.operator.mariadb   2020-05-23T14:34:13Z
+mariadbrestores.com.gunjangarge.operator.mariadb   2020-05-23T14:33:59Z
+mariadbs.com.gunjangarge.operator.mariadb          2020-05-23T14:33:17Z
 ```
 
 ### Deploy Service account, roles and operator
 
 ```console
-$ kubectl apply -f deploy/service_account.yaml
-$ kubectl apply -f deploy/role.yaml
-$ kubectl apply -f deploy/role_binding.yaml
-$ kubectl apply -f deploy/operator.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml
 ```
 
 ### Verify that the operator is up and running:
@@ -41,101 +84,48 @@ NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
 mariadb-operator           1/1     1            1           5m
 ```
 
-### Create Persistent Volume as below
-
-```yaml
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-   name: mariadb-pv
-   labels:
-      db: mariadb-data-volume
-spec:
-   storageClassName: manual
-   capacity: 
-      storage: 1Gi
-   accessModes:
-      - ReadWriteOnce
-   hostPath:
-      path: "/mariadb/data"
-```
-### Apply PV on cluster
+### Create Persistent Volume for data and data backup as below
 
 ```console
-$ kubectl apply -f volume.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/volume.yaml
 ```
 
-### Create CR file with below contents
-
-```yaml
----
-apiVersion: com.gunjangarge.operator.mariadb/v1
-kind: MariaDB
-metadata:
-   name: mariadb-instance
-   namespace: mariadb-ns
-spec:
-   # Add fields here
-   size: 1 # in case you are using persistent volume and persistent volume claim, keep size  equal to 1
-   mysql_root_password: password
-   db_image: mariadb:10.4
-   mysql_database: sample
-   mysql_user: john
-   mysql_user_password: john123
-   mysql_conn_service_port: 32000
-   external_data_storage_persistent_volume_selector_label:
-   db: mariadb-data-volume
-   persistent_volume_claim:
-   claim_size: 1Gi
-   storage_class_name: manual
-   access_mode: ReadWriteOnce
-```
-
-### Apply CR on cluster
-
-Apply above CR file or below from repository.
+### Apply Mariadb CR on cluster
 
 ```console
-$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
 ```
 
 ### Verify that the operator is up and running
 
 ```console
-$ kubectl get deployment
-NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
-mariadb-instance-mariadb   3/3     3            3           3m27s
-mariadb-operator           1/1     1            1           7m24s
+$ kubectl get deployment -n mariadb-ns
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+mariadb   1/1     1            1           26s
 ```
 
 ```console
-$ kubectl get pods
-NAME                                        READY   STATUS    RESTARTS   AGE
-mariadb-instance-mariadb-7ccf896b8c-fj5r6   1/1     Running   0          4m21s
-mariadb-instance-mariadb-7ccf896b8c-lnl4w   1/1     Running   0          4m21s
-mariadb-instance-mariadb-7ccf896b8c-p4q2r   1/1     Running   0          4m21s
-mariadb-operator-6bbfc865b5-g92vs           1/1     Running   0          8m22s
+$ kubectl get pods -n mariadb-ns
+NAME                       READY   STATUS    RESTARTS   AGE
+mariadb-84d4f8b5dd-dqlg9   1/1     Running   0          77s
 ```
 
 ### Verify that service is up
 
 ```console
-$ kubectl get svc
-NAME                       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)             AGE
-kubernetes                 ClusterIP   10.96.0.1       <none>        443/TCP             16m
-mariadb-operator-metrics   ClusterIP   10.103.82.227   <none>        8383/TCP,8686/TCP   5m40s
-mariadb-service            NodePort    10.105.157.3    <none>        3306:32000/TCP      5m21s
+$ kubectl get svc -n mariadb-ns
+NAME              TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+mariadb-service   NodePort   10.106.98.31   <none>        3306:32000/TCP   110s
 ```
 
 ### Connect to mysql
 
 ```console
-$ mysql -h 192.168.1.3 -P 32000 -u john1 -pjohn1
+$ mysql -h 10.0.0.7 -P 32000 -u john -pjohn123
 mysql: [Warning] Using a password on the command line interface can be insecure.
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 8
-Server version: 5.5.5-10.4.12-MariaDB-1:10.4.12+maria~bionic mariadb.org binary distribution
+Server version: 5.5.5-10.4.13-MariaDB-1:10.4.13+maria~bionic mariadb.org binary distribution
 
 Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
 
@@ -154,69 +144,15 @@ mysql> show databases;
 +--------------------+
 2 rows in set (0.00 sec)
 
-mysql>
+mysql> 
 ```
 
 ## Mariadb database backup
 
-### Create Persistent Volume for backup activities
-
-```yaml
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-    name: mariadb-backup-pv
-    labels:
-      db: mariadb-databackup-volume
-spec:
-    storageClassName: manual
-    capacity: 
-        storage: 1Gi
-    accessModes:
-        - ReadWriteMany
-    hostPath:
-        path: "/mariadb/databackup"        
-```
-### Apply above yaml file or directly from repository
+### Apply Mariadb Backup CR file
 
 ```console
-$ kubectl apply -f volume.yaml
-```
-
-### Apply Mariadb Backup CRD file into your cluster
-
-```console
-$ kubectl apply -f deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
-```
-### Create Backup CR File as below
-
-```yaml
----
-apiVersion: com.gunjangarge.operator.mariadb/v1
-kind: MariaDBBackup
-metadata:
-  name: mariadbbackup-instance
-  namespace: mariadb-ns # same as mariadb
-spec:
-  # Add fields here
-  db_image: mariadb:10.4
-  mysql_database_to_backup: sample
-  mysql_user: john
-  mysql_user_password: john123
-  mariadb_backup_schedule: "*/15 * * * *"
-  mariadb_mysqldump_options: "--flush-privileges --skip-lock-tables"
-  external_data_storage_mariadb_backup_persistent_volume_selector_label:
-    db: mariadb-databackup-volume
-  mariadb_backup_persistent_volume_claim:
-    claim_size: 111Mi
-    storage_class_name: manual
-    access_mode: ReadWriteOnce
-```
-### Apply above CR file or below from repository.
-
-```console
-$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
 ```
 
 ### Check resources in cluster
@@ -246,32 +182,11 @@ cronjob.batch/mariadb-backup   */15 * * * *   False     0        11m            
 ```
 ## Mariadb database restore
 
-### Apply Mariadb Restore CRD file into your cluster
+```
+### Apply Mariadb Restore CR file
 
 ```console
-$ kubectl apply -f deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
-```
-### Create Restore CR File as below
-
-```yaml
----
-apiVersion: com.gunjangarge.operator.mariadb/v1
-kind: MariaDBRestore
-metadata:
-  name: mariadbrestore-instance
-  namespace: mariadb-ns
-spec:
-  # Add fields here
-  db_image: mariadb:10.4
-  mysql_database_to_restore: sample
-  mysql_user: john
-  mysql_user_password: john123
-  mysql_restore_sql_file: "mysqldump-sample-2020-May-18-063009UTC.sql"
-```
-### Apply above CR file or below from repository.
-
-```console
-$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
 ```
 
 ### Check resources from cluster
@@ -300,7 +215,7 @@ NAME                           SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   
 cronjob.batch/mariadb-backup   */5 * * * *   False     0        117s            3m53s
 ```
 
-### Deployment Logs 
+### Check Mariadb Operator deployment logs 
 
 ```console
 $ kubectl logs -f deployment.apps/mariadb-operator
@@ -309,38 +224,20 @@ $ kubectl logs -f deployment.apps/mariadb-operator
 ## Mariadb Monitoring using Prometheus 
 
 ##### It is assumed that Prometheus is already deployed in k8s cluster.
-### Deploy Prometheus ServiceMonitor
-```console
-$ kubectl apply -f prometheus-monitoring/02_prometheus_servicemonitor.yaml
-```
-### Apply Mariadb Monitor CRD file into your cluster
 
+### Deploy Prometheus Server and ServiceMonitor
 ```console
-$ kubectl apply -f deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/prometheus-monitoring/prometheus.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/prometheus-monitoring/servicemonitor.yaml
 ```
-### Create Restore CR File as below
 
-```yaml
----
-apiVersion: com.gunjangarge.operator.mariadb/v1
-kind: MariaDBMonitor
-metadata:
-  name: mariadb-monitor
-  namespace: mariadb-ns
-spec:
-  # Add fields here
-  size: 1
-  data_source_name: "john:john123@(mariadb-service.mariadb-ns:3306)/sample"
-  prometheus_mysqlexportor_image: "prom/mysqld-exporter"
-  monitor_service_port: 32500
-```
-### Apply above CR file or below from repository.
+### Apply MariaDB Monitor CR file
 
 ```console
-$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
 ```
 
-### Check resources from cluster 
+### Check resources from cluster
 ```console
 $ kubectl get all -n mariadb-ns
 NAME                                   READY   STATUS      RESTARTS   AGE
@@ -379,18 +276,18 @@ Browse to http://mariadb-monitor-service_ip:mariadb-service-port/metrics
 ### Clean up the resources:
 
 ```console
-$ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
-$ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
-$ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
-$ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
-$ kubectl delete -f deploy/operator.yaml
-$ kubectl delete -f deploy/role_binding.yaml
-$ kubectl delete -f deploy/role.yaml
-$ kubectl delete -f deploy/service_account.yaml
-$ kubectl delete -f deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
-$ kubectl delete -f deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
-$ kubectl delete -f deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
-$ kubectl delete -f deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
-$ kubectl delete -f volume.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/volume.yaml
 $ kubectl delete namespace mariadb-ns
 ```
