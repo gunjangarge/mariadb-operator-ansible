@@ -182,7 +182,6 @@ cronjob.batch/mariadb-backup   */15 * * * *   False     0        11m            
 ```
 ## Mariadb database restore
 
-```
 ### Apply Mariadb Restore CR file
 
 ```console
