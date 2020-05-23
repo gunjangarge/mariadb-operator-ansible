@@ -6,7 +6,7 @@ This is mariadb operator using Ansible.
 - [x] Basic Install
 - [x] Seamless Upgrades
 - [x] Backup and restore
-- [ ] Monitoring/Deep Insights
+- [x] Monitoring/Deep Insights
 
 ## Setup Instructions
 
@@ -306,6 +306,74 @@ cronjob.batch/mariadb-backup   */5 * * * *   False     0        117s            
 $ kubectl logs -f deployment.apps/mariadb-operator
 ```
 
+## Mariadb Monitoring using Prometheus 
+
+##### It is assumed that Prometheus is already deployed in k8s cluster.
+### Deploy Prometheus ServiceMonitor
+```console
+$ kubectl apply -f prometheus-monitoring/02_prometheus_servicemonitor.yaml
+```
+### Apply Mariadb Monitor CRD file into your cluster
+
+```console
+$ kubectl apply -f deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+```
+### Create Restore CR File as below
+
+```yaml
+---
+apiVersion: com.gunjangarge.operator.mariadb/v1
+kind: MariaDBMonitor
+metadata:
+  name: mariadb-monitor
+  namespace: mariadb-ns
+spec:
+  # Add fields here
+  size: 1
+  data_source_name: "john:john123@(mariadb-service.mariadb-ns:3306)/sample"
+  prometheus_mysqlexportor_image: "prom/mysqld-exporter"
+  monitor_service_port: 32500
+```
+### Apply above CR file or below from repository.
+
+```console
+$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
+```
+
+### Check resources from cluster 
+```console
+$ kubectl get all -n mariadb-ns
+NAME                                   READY   STATUS      RESTARTS   AGE
+pod/mariadb-84d4f8b5dd-8n2rf           1/1     Running     0          3h20m
+pod/mariadb-backup-1590237900-ns9zs    0/1     Completed   0          37m
+pod/mariadb-backup-1590238800-fmsr6    0/1     Completed   0          22m
+pod/mariadb-backup-1590239700-2wfjx    0/1     Completed   0          7m47s
+pod/mariadb-monitor-7dfb4d664f-mvs2h   1/1     Running     0          3h20m
+
+NAME                              TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/mariadb-monitor-service   NodePort   10.104.94.196   <none>        9104:32500/TCP   3h20m
+service/mariadb-service           NodePort   10.99.21.113    <none>        3306:32000/TCP   3h20m
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mariadb           1/1     1            1           3h20m
+deployment.apps/mariadb-monitor   1/1     1            1           3h20m
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/mariadb-84d4f8b5dd           1         1         1       3h20m
+replicaset.apps/mariadb-monitor-7dfb4d664f   1         1         1       3h20m
+
+NAME                                  COMPLETIONS   DURATION   AGE
+job.batch/mariadb-backup-1590237900   1/1           9s         37m
+job.batch/mariadb-backup-1590238800   1/1           6s         22m
+job.batch/mariadb-backup-1590239700   1/1           6s         7m47s
+
+NAME                           SCHEDULE       SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cronjob.batch/mariadb-backup   */15 * * * *   False     0        7m49s           3h20m
+```
+
+### Verify that metrics are being captured
+Browse to http://mariadb-monitor-service_ip:mariadb-service-port/metrics
+
 ## Cleanup
 
 ### Clean up the resources:
@@ -313,12 +381,14 @@ $ kubectl logs -f deployment.apps/mariadb-operator
 ```console
 $ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
 $ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
+$ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
 $ kubectl delete -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
 $ kubectl delete -f deploy/operator.yaml
 $ kubectl delete -f deploy/role_binding.yaml
 $ kubectl delete -f deploy/role.yaml
 $ kubectl delete -f deploy/service_account.yaml
 $ kubectl delete -f deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl delete -f deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
 $ kubectl delete -f deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
 $ kubectl delete -f deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
 $ kubectl delete -f volume.yaml
