@@ -10,33 +10,67 @@ This is mariadb operator using Ansible.
 
 ## TL;DR
 
-### Create Mariadb, Backup cronjob, Restore job and Monitor resource
+### Method 1 - Create Mariadb, Backup cronjob, Restore job and Monitor resource
 
 ```console
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml
-kubectl create namespace mariadb-ns
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/volume.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
-# Run only when you need to monitor database
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/prometheus-monitoring/prometheus.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/prometheus-monitoring/servicemonitor.yaml
-kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
-# Run only when you need to restore database
-# kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
+$ OP=mariadb-ns
+$ kubectl create namespace mariadb-ns
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml -n $OP
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml -n $OP
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml -n $OP
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml -n $OP
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/volume.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
+$ # Run only when you need to monitor database
+$ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml  -n $OP
+$ # Run only when you need to restore database
+$ # kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml  -n $OP
 
 ```
 
 ### Cleanup everything
 
 [Cleanup](https://github.com/gunjangarge/mariadb-operator-ansible#cleanup) - clean up everything
+
+
+### Method 2 - Using create and delete resources bash script
+
+#### Clone github repo and run create script
+```console
+$ git clone https://github.com/gunjangarge/mariadb-operator-ansible.git
+$ bash create-resources.sh
+$ # for deletion
+$ bash delete-resources.sh
+```
+
+### Method 3 - Using github repository
+
+#### Clone github repo and run following commands
+```console
+$ git clone https://github.com/gunjangarge/mariadb-operator-ansible.git
+$ cd mariadb-operator-ansible
+$ OP=mariadb-ns
+$ kubectl create namespace $OP
+$ kubectl apply -f deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f deploy/crds/mariadbrestores.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
+$ kubectl apply -f deploy/service_account.yaml -n $OP
+$ kubectl apply -f deploy/role.yaml -n $OP
+$ kubectl apply -f deploy/role_binding.yaml -n $OP
+$ kubectl apply -f deploy/operator.yaml -n $OP
+$ kubectl apply -f volume.yaml
+$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml -n $OP
+$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml -n $OP
+$ kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml -n $OP
+$ # run only when you need to restore database
+$ # kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml -n $OP
+```
 
 ## Setup Instructions
 
@@ -67,7 +101,7 @@ mariadbrestores.com.gunjangarge.operator.mariadb   2020-05-23T14:33:59Z
 mariadbs.com.gunjangarge.operator.mariadb          2020-05-23T14:33:17Z
 ```
 
-### Deploy Service account, roles and operator
+### Deploy RBAC (Service account, Roles and Operator)
 
 ```console
 $ kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml
@@ -275,14 +309,14 @@ Browse to http://mariadb-monitor-service_ip:mariadb-service-port/metrics
 ### Clean up the resources:
 
 ```console
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/operator.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role_binding.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/role.yaml -n $OP
+$ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/service_account.yaml -n $OP
 $ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbs.com.gunjangarge.operator.mariadb_crd.yaml
 $ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbmonitors.com.gunjangarge.operator.mariadb_crd.yaml
 $ kubectl delete -f https://raw.githubusercontent.com/gunjangarge/mariadb-operator-ansible/master/deploy/crds/mariadbbackups.com.gunjangarge.operator.mariadb_crd.yaml
