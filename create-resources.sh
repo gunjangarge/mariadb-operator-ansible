@@ -18,7 +18,25 @@ do
 done
 echo
 kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml -n $OP
+for x in {10..1}
+do 
+    echo -n "$x "; 
+    sleep 1;
+done
+echo
 kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml -n $OP
+for x in {10..1}
+do 
+    echo -n "$x "; 
+    sleep 1;
+done
+echo
 kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml -n $OP
+for x in {10..1}
+do 
+    echo -n "$x "; 
+    sleep 1;
+done
+echo
 # run only when you need to restore database
 # kubectl apply -f deploy/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml -n $OP

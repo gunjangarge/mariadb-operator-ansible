@@ -21,7 +21,10 @@ spec:
       containers: 
         - env: 
             - name: DATA_SOURCE_NAME
-              value: "{{data_source_name}}"
+              valueFrom:
+                secretKeyRef:
+                  name: 'mariadb.{{meta.namespace}}-secret'
+                  key: data_source_name            
           image: "{{prometheus_mysqlexportor_image}}"
           name: mariadb-monitor-container
           ports: 

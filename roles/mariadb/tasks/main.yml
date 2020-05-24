@@ -4,9 +4,9 @@
   community.kubernetes.k8s:
     definition: "{{ lookup('template', item) | from_yaml  }}"
   with_items:
+    - mariadb-secret.yaml.j2
     - mariadb-deployment.yaml.j2
     - mariadb-service.yaml.j2
-    # - mariadb-pv-pvc.yaml.j2
     
 - name: create pvc
   kubevirt_pvc:

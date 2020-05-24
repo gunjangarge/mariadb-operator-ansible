@@ -6,6 +6,6 @@ metadata:
 spec:
   # Add fields here
   size: 1
-  data_source_name: "john:john123@(mariadb-service.mariadb-ns:3306)/sample"
+  # data_source_name: "john:john123@(mariadb-service.mariadb-ns:3306)/"
   prometheus_mysqlexportor_image: "prom/mysqld-exporter"
   monitor_service_port: 32500
