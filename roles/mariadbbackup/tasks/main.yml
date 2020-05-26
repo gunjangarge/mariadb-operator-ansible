@@ -26,7 +26,11 @@
 
 - name: create pvc for mariadb backup
   kubevirt_pvc:
-    name: "{{meta.namespace}}-mariadb-backup-pvc"
+    name: "{{meta.namespace}}-{{meta.name}}-mariadb-backup-pvc"
+    labels:
+      app: mariadb
+      mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
+      purpose: databackup
     namespace: "{{meta.namespace}}"
     size: "{{mariadb_backup_persistent_volume_claim.claim_size}}"
     storage_class_name: "{{mariadb_backup_persistent_volume_claim.storage_class_name}}"

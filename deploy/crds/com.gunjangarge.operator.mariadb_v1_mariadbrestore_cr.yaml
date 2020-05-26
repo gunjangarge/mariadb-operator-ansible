@@ -1,12 +1,18 @@
 apiVersion: com.gunjangarge.operator.mariadb/v1
 kind: MariaDBRestore
 metadata:
-  name: backend-db-restore
-  namespace: mariadb-ns
+  name: dbserver-restore
+  namespace: primary
 spec:
   # Add fields here
   db_image: mariadb:10.4
-  mysql_database_to_restore: sample
-  mysql_user: john
-  mysql_user_password: john123
-  mysql_restore_sql_file: "mysqldump-sample-2020-May-23-181506UTC.sql"
+  mysql_database_to_restore: primary_database
+  mysql_user: primaryuser
+  mysql_user_password: primaryuser123
+  mysql_restore_sql_file: "mysqldump-primary_database-2020-May-26-200008UTC.sql"
+  external_data_storage_mariadb_backup_persistent_volume_selector_label:
+    db: mariadb-databackup-volume
+  mariadb_backup_persistent_volume_claim:
+    claim_size: 500Mi
+    storage_class_name: manual
+    access_mode: ReadWriteOnce

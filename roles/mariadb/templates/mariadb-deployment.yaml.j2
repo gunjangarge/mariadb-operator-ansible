@@ -51,4 +51,4 @@ spec:
       volumes:
         - name: mariadb-data
           persistentVolumeClaim:
-            claimName: {{meta.namespace}}-mariadb-pvc
+            claimName: {{meta.namespace}}-{{meta.name}}-mariadb-pvc

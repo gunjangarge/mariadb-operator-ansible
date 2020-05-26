@@ -4,12 +4,12 @@ db_port=$2
 monitor_port=$3
 [ "$OP" == "" -o "$db_port" == "" -o "$monitor_port" == "" ] && echo "Usage: ./$0 namespace db-port monitor-port" && exit
 #kubectl delete -f volume.yaml
-for x in {10..1}
-do 
-    echo -n "$x "; 
-    sleep 1;
-done
-echo
+# for x in {10..1}
+# do 
+#     echo -n "$x "; 
+#     sleep 1;
+# done
+# echo
 #kubectl delete -f- /tmp/crds/com.gunjangarge.operator.mariadb_v1_mariadb_cr.yaml -n $OP
 cat << EOF | kubectl delete -f -
 apiVersion: com.gunjangarge.operator.mariadb/v1
@@ -34,12 +34,12 @@ spec:
     access_mode: ReadWriteOnce  
 
 EOF
-for x in {10..1}
-do 
-    echo -n "$x "; 
-    sleep 1;
-done
-echo
+# for x in {10..1}
+# do 
+#     echo -n "$x "; 
+#     sleep 1;
+# done
+# echo
 #kubectl delete -f- /tmp/crds/com.gunjangarge.operator.mariadb_v1_mariadbbackup_cr.yaml -n $OP
 cat << EOF | kubectl delete -f -
 apiVersion: com.gunjangarge.operator.mariadb/v1
@@ -62,12 +62,12 @@ spec:
     storage_class_name: manual
     access_mode: ReadWriteOnce
 EOF
-for x in {10..1}
-do 
-    echo -n "$x "; 
-    sleep 1;
-done
-echo
+# for x in {10..1}
+# do 
+#     echo -n "$x "; 
+#     sleep 1;
+# done
+# echo
 #kubectl delete -f- /tmp/crds/com.gunjangarge.operator.mariadb_v1_mariadbmonitor_cr.yaml -n $OP
 cat << EOF | kubectl delete -f -
 apiVersion: com.gunjangarge.operator.mariadb/v1
@@ -81,12 +81,12 @@ spec:
   prometheus_mysqlexportor_image: "prom/mysqld-exporter"
   monitor_service_port: $monitor_port
 EOF
-for x in {10..1}
-do 
-    echo -n "$x "; 
-    sleep 1;
-done
-echo
+# for x in {10..1}
+# do 
+#     echo -n "$x "; 
+#     sleep 1;
+# done
+# echo
 # run only when you need to restore database
 # kubectl delete -f- /tmp/crds/com.gunjangarge.operator.mariadb_v1_mariadbrestore_cr.yaml -n $OP
 #cat << EOF | kubectl delete -f -

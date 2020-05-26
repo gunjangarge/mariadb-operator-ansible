@@ -10,11 +10,12 @@
     
 - name: create pvc
   kubevirt_pvc:
-    name: "{{meta.namespace}}-mariadb-pvc"
+    name: "{{meta.namespace}}-{{meta.name}}-mariadb-pvc"
     namespace: "{{meta.namespace}}"
     labels:
       app: mariadb
       mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
+      purpose: data
     size: "{{persistent_volume_claim.claim_size}}"
     storage_class_name: "{{persistent_volume_claim.storage_class_name}}"
     access_modes:

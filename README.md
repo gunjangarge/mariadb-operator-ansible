@@ -43,10 +43,15 @@ $ # kubectl apply -f https://raw.githubusercontent.com/gunjangarge/mariadb-opera
 #### Clone github repo and run create script
 ```console
 $ git clone https://github.com/gunjangarge/mariadb-operator-ansible.git
-$ bash create-resources.sh
+$ bash install-operator.sh
+$ # bash create-resources.sh <namespace> <database service port> <database monitor port>
+$ bash create-resources.sh primarydb 32000 32500
 $ # for deletion
-$ bash delete-resources.sh
+$ # bash delete-resources.sh <namespace> <database service port> <database monitor port>
+$ bash delete-resources.sh primarydb 32000 32500
+$ bash remove-operator.sh
 ```
+##### Note: You can create mariadb in multiple namspaces in same K8s cluster.
 
 ### Method 3 - Using github repository
 

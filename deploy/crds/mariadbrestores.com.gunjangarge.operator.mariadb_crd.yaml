@@ -10,7 +10,7 @@ spec:
     listKind: MariaDBRestoreList
     plural: mariadbrestores
     singular: mariadbrestore
-  scope: Cluster
+  scope: Namespaced
   subresources:
     status: {}
   validation:

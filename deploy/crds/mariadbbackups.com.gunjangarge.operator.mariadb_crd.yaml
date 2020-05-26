@@ -10,7 +10,7 @@ spec:
     listKind: MariaDBBackupList
     plural: mariadbbackups
     singular: mariadbbackup
-  scope: Cluster
+  scope: Namespaced
   subresources:
     status: {}
   validation:

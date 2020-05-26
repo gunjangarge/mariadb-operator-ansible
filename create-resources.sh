@@ -3,7 +3,7 @@ OP=$1
 db_port=$2
 monitor_port=$3
 [ "$OP" == "" -o "$db_port" == "" -o "$monitor_port" == "" ] && echo "Usage: ./$0 namespace db-port monitor-port" && exit
-mkdir -p /$OP/database/data $OP/database/databackup
+mkdir -p /$OP/database/data /$OP/database/databackup
 kubectl create namespace $OP
 #kubectl apply -f volume.yaml
 cat << EOF | kubectl apply -f -
@@ -56,7 +56,7 @@ spec:
   size: 1
   mysql_root_password: password
   db_image: mariadb:10.4
-  mysql_database: ${OP}-database
+  mysql_database: ${OP}_database
   mysql_user: ${OP}user
   mysql_user_password: ${OP}user123
   mysql_conn_service_port: $db_port
@@ -84,10 +84,10 @@ metadata:
 spec:
   # Add fields here
   db_image: mariadb:10.4
-  mysql_database_to_backup: ${OP}-database
+  mysql_database_to_backup: ${OP}_database
   mysql_user: ${OP}user
   mysql_user_password: ${OP}user123
-  mariadb_backup_schedule: "*/30 * * * *"
+  mariadb_backup_schedule: "*/15 * * * *"
   mariadb_mysqldump_options: "--flush-privileges --skip-lock-tables"
   external_data_storage_mariadb_backup_persistent_volume_selector_label:
     db: $OP-databackup-volume
@@ -132,8 +132,14 @@ EOF
 #spec:
 #  # Add fields here
 #  db_image: mariadb:10.4
-#  mysql_database_to_restore: ${OP}-database
+#  mysql_database_to_restore: ${OP}_database
 #  mysql_user: ${OP}user
 #  mysql_user_password: ${OP}user123
 #  mysql_restore_sql_file: "mysqldump-sample-2020-May-23-181506UTC.sql"
+#  external_data_storage_mariadb_backup_persistent_volume_selector_label:
+#    db: mariadb-databackup-volume
+#  mariadb_backup_persistent_volume_claim:
+#    claim_size: 500Mi
+#    storage_class_name: manual
+#    access_mode: ReadWriteOnce
 #EOF

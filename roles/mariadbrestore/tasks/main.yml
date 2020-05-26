@@ -1,17 +1,22 @@
 ---
 # tasks file for mariadbrestore
-# - name: Get mariadb service ip address
-#   k8s_info:
-#     api_version: v1
-#     kind: Service
-#     name: mariadb-service
-#     namespace: "{{meta.namespace}}"
-#   register: mariadbserviceregister
+- name: Get backup volume claim from k8s_info
+  k8s_info:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    label_selectors:
+      - "purpose=databackup"
+    namespace: "{{meta.namespace}}"
+  register: backuppvcregister
 
-# - name: Set mariadb service ip address from k8s_info
-#   set_fact:
-#     ip: "{{item}}"
-#   with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+# - name: Log backup volume claim from k8s_info
+#   debug:
+#     msg: "{{backuppvcregister}}"
+
+- name: Set backup volume claim from k8s_info
+  set_fact:
+    pvc_name: "{{item}}"
+  with_items : "{{ backuppvcregister | json_query('resources[0].metadata.name') }}"
 
 - name: create job for mariadb restore
   community.kubernetes.k8s:

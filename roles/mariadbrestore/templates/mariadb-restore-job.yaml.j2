@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
- name: {{meta.namespace}}-{{meta.name}}-{{mysql_database_to_restore}}
+ name: {{meta.namespace}}-{{meta.name}}-{{mysql_database_to_restore.split('_') | join('-')}}
  namespace: "{{meta.namespace}}"
 spec:
   template:
@@ -21,5 +21,5 @@ spec:
       volumes:
         - name: mariadb-datarestore
           persistentVolumeClaim:
-            claimName: {{meta.namespace}}-mariadb-backup-pvc
+            claimName: "{{pvc_name}}"
   backoffLimit: 1
