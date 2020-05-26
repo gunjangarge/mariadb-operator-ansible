@@ -1,7 +1,7 @@
 apiVersion: com.gunjangarge.operator.mariadb/v1
 kind: MariaDBBackup
 metadata:
-  name: mariadb-backup
+  name: backend-db-backup
   namespace: mariadb-ns # same as mariadb
 spec:
   # Add fields here
@@ -14,6 +14,6 @@ spec:
   external_data_storage_mariadb_backup_persistent_volume_selector_label:
     db: mariadb-databackup-volume
   mariadb_backup_persistent_volume_claim:
-    claim_size: 111Mi
+    claim_size: 500Mi
     storage_class_name: manual
     access_mode: ReadWriteOnce

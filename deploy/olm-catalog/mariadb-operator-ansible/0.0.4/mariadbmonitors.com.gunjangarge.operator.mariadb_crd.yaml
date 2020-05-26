@@ -10,7 +10,7 @@ spec:
     listKind: MariaDBMonitorList
     plural: mariadbmonitors
     singular: mariadbmonitor
-  scope: Namespaced
+  scope: Cluster
   subresources:
     status: {}
   validation:

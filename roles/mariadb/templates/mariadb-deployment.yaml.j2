@@ -2,11 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
-  name: "{{meta.name}}"
+  name: "{{meta.namespace}}-{{meta.name}}"
   namespace: "{{meta.namespace}}"
   labels:
     app: mariadb
-    mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
+    mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
 spec: 
   replicas: {{size}}
   selector: 
@@ -16,32 +16,32 @@ spec:
     metadata: 
       labels: 
         app: mariadb
-        mariadb_cluster: "{{meta.namespace}}.{{meta.name}}"
+        mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
     spec: 
       containers: 
         - env: 
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: 'mariadb.{{meta.namespace}}-secret'
+                  name: '{{meta.namespace}}-mariadb-secret'
                   key: mysql_root_password
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: 'mariadb.{{meta.namespace}}-secret'
+                  name: '{{meta.namespace}}-mariadb-secret'
                   key: mysql_database
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: 'mariadb.{{meta.namespace}}-secret'
+                  name: '{{meta.namespace}}-mariadb-secret'
                   key: mysql_user
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: 'mariadb.{{meta.namespace}}-secret'
+                  name: '{{meta.namespace}}-mariadb-secret'
                   key: mysql_user_password
           image: "{{db_image}}"
-          name: mariadb-container
+          name: database
           ports: 
             - name: mariadb-port
               containerPort: 3306
@@ -51,4 +51,4 @@ spec:
       volumes:
         - name: mariadb-data
           persistentVolumeClaim:
-            claimName: mariadb-persistent-volume-claim-{{meta.namespace}}
+            claimName: {{meta.namespace}}-mariadb-pvc

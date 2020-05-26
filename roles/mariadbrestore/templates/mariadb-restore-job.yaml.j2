@@ -2,18 +2,18 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
- name: mariadb-restore
+ name: {{meta.namespace}}-{{meta.name}}-{{mysql_database_to_restore}}
  namespace: "{{meta.namespace}}"
 spec:
   template:
     spec:
       containers:
-      - name: mariadb-restore-{{meta.namespace}}
+      - name: database-restore
         image: "{{db_image}}"
         args:
           - /bin/sh
           - -c
-          - mysql -h mariadb-service.{{meta.namespace}} -P 3306 -u {{mysql_user}} -p{{mysql_user_password}} {{mysql_database_to_restore}} < /opt/{{mysql_restore_sql_file}}
+          - mysql -h {{meta.namespace}}-mariadb-service -P 3306 -u {{mysql_user}} -p{{mysql_user_password}} {{mysql_database_to_restore}} < /opt/{{mysql_restore_sql_file}}
         volumeMounts:
         - mountPath: /opt
           name: mariadb-datarestore
@@ -21,5 +21,5 @@ spec:
       volumes:
         - name: mariadb-datarestore
           persistentVolumeClaim:
-            claimName: mariadb-backup-persistent-volume-claim-{{meta.namespace}}
+            claimName: {{meta.namespace}}-mariadb-backup-pvc
   backoffLimit: 1

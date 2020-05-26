@@ -1,5 +1,17 @@
 ---
 # tasks file for mariadbmonitor
+- name: create new mariadb user for monitoring
+  mysql_user:
+    state: present
+    name: exporter    
+    password: exporter123
+    priv: '*.*:PROCESS/*.*:REPLICATION CLIENT/performance_schema.*:SELECT'
+    login_host: "{{meta.namespace}}-mariadb-service.{{meta.namespace}}"
+    login_user: root
+    login_password: password
+    login_port: 3306
+    host: '%'
+
 - name: create mariadb monitor
   community.kubernetes.k8s:
     definition: "{{ lookup('template', item) | from_yaml  }}"

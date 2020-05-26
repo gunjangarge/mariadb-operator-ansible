@@ -4,6 +4,8 @@ COPY requirements.yml ${HOME}/requirements.yml
 RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
  && chmod -R ug+rwx ${HOME}/.ansible
 
+RUN python3 -m pip install PyMySQL --user 
+
 COPY watches.yaml ${HOME}/watches.yaml
 
 COPY roles/ ${HOME}/roles/
