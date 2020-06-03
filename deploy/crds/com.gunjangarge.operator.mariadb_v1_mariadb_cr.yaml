@@ -6,15 +6,21 @@ metadata:
 spec:
   # Add fields here
   size: 1
-  mysql_root_password: password
   db_image: mariadb:10.4
+  mysql_root_password: password
   mysql_database: sample
   mysql_user: john
   mysql_user_password: john123
   mysql_conn_service_port: 32000
-  external_data_storage_persistent_volume_selector_label:
-    db: mariadb-data-volume
-  persistent_volume_claim:
-    claim_size: 500Mi
-    storage_class_name: manual
-    access_mode: ReadWriteOnce  
+  cluster:
+    enabled: false
+    first_node: true
+    server_name: master 
+  external_storage:
+    enabled: true
+    persistent_volume_selector_label:
+      db: mariadb-data-volume
+    persistent_volume_claim:
+      claim_size: 500Mi
+      storage_class_name: manual
+      access_mode: ReadWriteOnce 

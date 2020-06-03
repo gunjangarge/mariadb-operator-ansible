@@ -1,12 +1,31 @@
 ---
 # tasks file for mariadbmonitor
+- name: Get mariadb service ip address
+  k8s_info:
+    api_version: v1
+    kind: Service
+    namespace: "{{meta.namespace}}"
+    label_selectors:
+    - "app=mariadb"
+  register: mariadbserviceregister
+      
+- name: Get mariadb service ip address from k8s_info
+  debug:
+    msg: "Service creating monitoring user- {{item}}"
+  with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+
+- name: Set mariadb service ip address from k8s_info
+  set_fact:
+    ip: "{{item}}"
+  with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+
 - name: create new mariadb user for monitoring
   mysql_user:
     state: present
     name: exporter    
     password: exporter123
     priv: '*.*:PROCESS/*.*:REPLICATION CLIENT/performance_schema.*:SELECT'
-    login_host: "{{meta.namespace}}-mariadb-service.{{meta.namespace}}"
+    login_host: "{{ip}}"
     login_user: root
     login_password: password
     login_port: 3306

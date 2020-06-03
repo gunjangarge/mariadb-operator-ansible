@@ -1,26 +1,142 @@
 ---
 # tasks file for mariadb
-- name: create mariadb
-  community.kubernetes.k8s:
-    definition: "{{ lookup('template', item) | from_yaml  }}"
-  with_items:
-    - mariadb-secret.yaml.j2
-    - mariadb-deployment.yaml.j2
-    - mariadb-service.yaml.j2
-    
+- name: Set name of pod
+  set_fact:
+    pod_name: "{{meta.namespace}}-{{meta.name}}-0"
+    pod_ip_array_after_self_pop: []
+    gcomm_url: ""
+    pod_svc_name: "{{meta.namespace}}-{{meta.name}}-service"
+    secret_name: "{{meta.namespace}}-mariadb-secret"
+
+
 - name: create pvc
   kubevirt_pvc:
     name: "{{meta.namespace}}-{{meta.name}}-mariadb-pvc"
     namespace: "{{meta.namespace}}"
     labels:
       app: mariadb
-      mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
+      mariadb_cluster: "{{meta.namespace}}-galera-cluster"
       purpose: data
-    size: "{{persistent_volume_claim.claim_size}}"
-    storage_class_name: "{{persistent_volume_claim.storage_class_name}}"
+    size: "{{external_storage.persistent_volume_claim.claim_size}}"
+    storage_class_name: "{{external_storage.persistent_volume_claim.storage_class_name}}"
     access_modes:
-        - "{{persistent_volume_claim.access_mode}}"
+      - "{{external_storage.persistent_volume_claim.access_mode}}"
     selector:
-        matchLabels:
-            # db: mariadb
-          "{{external_data_storage_persistent_volume_selector_label}}"
+      matchLabels: "{{external_storage.persistent_volume_selector_label}}"
+  when: external_storage.enabled
+
+- block:
+
+    - name: Print pod and service name and pod ip
+      debug:
+        msg:
+          - "{{pod_name}} | Pod Name: {{pod_name}}"
+          - "{{pod_name}} | Pod Service Name: {{pod_svc_name}}"
+
+    - name: Get all headless services attached to database pods in the namespace
+      k8s_info:
+        kind: Service
+        namespace: "{{meta.namespace}}"
+        label_selectors:
+          - "database_svc_type=headless"
+      register: pod_svc_list_obj
+
+    - name: Array of running headless services
+      set_fact:
+        pod_svc_name_array: "{{ pod_svc_list_obj | json_query('resources[*].metadata.name') | sort() | default([])}}"
+
+    - name: Count of running headless services
+      set_fact:
+        pod_svc_count: "{{ pod_svc_name_array | length | default(0)}}"
+
+    - name: Print service count
+      debug:
+        msg:
+          - "{{pod_name}} | Pod Service Count : {{pod_svc_count}}"
+          - "{{pod_name}} | Pod Service Name Array: {{pod_svc_name_array}}"
+
+    - name: Pop self pod service name from pod service name array when self pod svc is available
+      set_fact:
+        pod_svc_name_array_after_self_pop: "{{pod_svc_name_array | difference(pod_svc_name) | default([]) }}"
+
+    - name: Set GCOMM IPs to all running pod service names after removing self service name when self pod service name is available
+      set_fact:
+        gcomm_url: "{{ pod_svc_name_array_after_self_pop | join(',') | default('')}}"
+
+    - name: Set GCOMM IPs to all running pod service names after removing self service name when self pod service name is available
+      set_fact:
+        gcomm_url: ""
+      when: cluster.first_node and pod_svc_name_array_after_self_pop|length|int < 2
+
+    - name: Print pod service names for gcomm url and pod service names array after self pop
+      debug:
+        msg:
+          - "{{pod_name}} | {{pod_svc_name_array_after_self_pop}}"
+          - "{{pod_name}} | {{gcomm_url}}"
+
+    - name: create mariadb when cluster is enabled
+      community.kubernetes.k8s:
+        definition: "{{ lookup('template', item) | from_yaml  }}"
+      with_items:
+        - mariadb-secret.yaml.j2
+        - mariadb-statefulset.yaml.j2
+        - mariadb-service.yaml.j2
+
+  when: cluster.enabled
+
+- name: create mariadb
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', item) | from_yaml  }}"
+  with_items:
+    - mariadb-secret.yaml.j2
+    - mariadb-statefulset.yaml.j2
+  when: not cluster.enabled
+
+- name: Get external services for database in the namespace
+  k8s_info:
+    kind: Service
+    namespace: "{{meta.namespace}}"
+    label_selectors:
+      - "database_svc_type=external"
+  register: ext_svc_obj
+
+- name: Count of external service
+  set_fact:
+    ext_svc_count: "{{ ext_svc_obj | json_query('resources[*]') | length | default(0)}}"
+
+- name: Print external service count
+  debug:
+    msg:
+      - "{{pod_name}} | Pod External service Count : {{ext_svc_count}}"
+
+- name: create external database service
+  community.kubernetes.k8s:
+    definition: "{{ lookup('template', item) | from_yaml  }}"
+  with_items:
+    - mariadb-service-external.yaml.j2
+  when: ext_svc_count|int == 0
+
+
+- name: lookup Pod
+  set_fact:
+    pod_status: "{{ q('k8s', api_version='v1', kind='Pod', namespace=meta.namespace, resource_name=pod_name)[0] }}"
+  register: result
+  until: result.ansible_facts.pod_status.status.podIP is defined and result.ansible_facts.pod_status.status.podIP not in ('', None)
+  retries: 10
+  delay: 10
+
+- debug:
+    msg: "Waiting for mysqld ports to be available before proceeding. This will timeout is 120 seconds."
+
+- name: Wait for mysqld ports to be available before proceeding
+  wait_for:
+    host: "{{pod_status.status.podIP}}"
+    port: 3306
+    state: started
+    delay: 30
+    connect_timeout: 15
+    timeout: 120
+
+- name: Done
+  debug:
+    msg: "{{pod_name}} | Done"

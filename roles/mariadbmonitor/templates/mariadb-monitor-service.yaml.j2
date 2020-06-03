@@ -6,7 +6,6 @@ metadata:
   namespace: "{{meta.namespace}}"
   labels:
     app: mariadb-monitor
-    mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
 spec: 
   ports: 
     - nodePort: {{monitor_service_port}}

@@ -6,7 +6,6 @@ metadata:
   namespace: "{{meta.namespace}}"
   labels:
     app: mariadb-monitor
-    mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
 spec: 
   replicas: {{size}}
   selector: 
@@ -16,7 +15,6 @@ spec:
     metadata: 
       labels: 
         app: mariadb-monitor
-        mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
     spec: 
       containers: 
         - env: 
@@ -26,6 +24,7 @@ spec:
                   name: '{{meta.namespace}}-mariadb-secret'
                   key: data_source_name            
           image: "{{prometheus_mysqlexportor_image}}"
+          imagePullPolicy: IfNotPresent
           name: monitor
           ports: 
             - name: monitor-port

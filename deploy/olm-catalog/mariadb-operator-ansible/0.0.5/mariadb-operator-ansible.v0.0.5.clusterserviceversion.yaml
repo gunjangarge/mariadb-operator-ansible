@@ -1,0 +1,300 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDB",
+          "metadata": {
+            "name": "backend-db",
+            "namespace": "mariadb-ns"
+          },
+          "spec": {
+            "cluster": {
+              "enabled": false,
+              "first_node": true,
+              "server_name": "master"
+            },
+            "db_image": "mariadb:10.4",
+            "external_storage": {
+              "enabled": true,
+              "persistent_volume_claim": {
+                "access_mode": "ReadWriteOnce",
+                "claim_size": "500Mi",
+                "storage_class_name": "manual"
+              },
+              "persistent_volume_selector_label": {
+                "db": "mariadb-data-volume"
+              }
+            },
+            "mysql_conn_service_port": 32000,
+            "mysql_database": "sample",
+            "mysql_root_password": "password",
+            "mysql_user": "john",
+            "mysql_user_password": "john123",
+            "size": 1
+          }
+        },
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDBBackup",
+          "metadata": {
+            "name": "backend-db-backup",
+            "namespace": "mariadb-ns"
+          },
+          "spec": {
+            "db_image": "mariadb:10.4",
+            "external_data_storage_mariadb_backup_persistent_volume_selector_label": {
+              "db": "mariadb-databackup-volume"
+            },
+            "mariadb_backup_persistent_volume_claim": {
+              "access_mode": "ReadWriteOnce",
+              "claim_size": "500Mi",
+              "storage_class_name": "manual"
+            },
+            "mariadb_backup_schedule": "*/15 * * * *",
+            "mariadb_mysqldump_options": "--flush-privileges --skip-lock-tables",
+            "mysql_database_to_backup": "sample",
+            "mysql_user": "john",
+            "mysql_user_password": "john123"
+          }
+        },
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDBMonitor",
+          "metadata": {
+            "name": "backend-db-monitor",
+            "namespace": "mariadb-ns"
+          },
+          "spec": {
+            "monitor_service_port": 32500,
+            "prometheus_mysqlexportor_image": "prom/mysqld-exporter",
+            "size": 1
+          }
+        },
+        {
+          "apiVersion": "com.gunjangarge.operator.mariadb/v1",
+          "kind": "MariaDBRestore",
+          "metadata": {
+            "name": "backend-db-restore",
+            "namespace": "mariadb-ns"
+          },
+          "spec": {
+            "db_image": "mariadb:10.4",
+            "mysql_database_to_restore": "sample",
+            "mysql_restore_sql_file": "mysqldump-primary_database-2020-May-26-200008UTC.sql",
+            "mysql_user": "john",
+            "mysql_user_password": "john123"
+          }
+        }
+      ]
+    capabilities: Deep Insights
+    categories: Database
+    certified: "false"
+    containerImage: quay.io/gunjangarge/mariadb-operator-ansible:v4
+    createdAt: "2020-06-02 11:17:00"
+    description: Create mariadb server and database on Kubernetes cluster
+    repository: https://github.com/gunjangarge/mariadb-operator-ansible
+    support: Gunjan Garge    
+  name: mariadb-operator-ansible.v0.0.5
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Represents a resource for managing MariaDB database
+      displayName: MariaDB Operator using Ansible
+      kind: MariaDB
+      name: mariadbs.com.gunjangarge.operator.mariadb
+      version: v1    
+    - description: Represents a resource for backup MariaDB database
+      displayName: MariaDB Operator Backup using Ansible
+      kind: MariaDBBackup
+      name: mariadbbackups.com.gunjangarge.operator.mariadb
+      version: v1
+    - description: Represents a resource for restore MariaDB database
+      displayName: MariaDB Operator Restore using Ansible
+      kind: MariaDBRestore
+      name: mariadbrestores.com.gunjangarge.operator.mariadb
+      version: v1
+    - description: Represents a resource for monitor MariaDB database
+      displayName: MariaDB Operator Monitoring using Ansible
+      kind: MariaDBMonitor
+      name: mariadbmonitors.com.gunjangarge.operator.mariadb
+      version: v1 
+  description: "MariaDB Ansible Operator enables you to create MariaDB database easily
+    by defining simple Custom Resource. \n### Features: \n* Setup a MariaDB database
+    with configured version \n* Creates a custom database along with a user credential
+    set for the custom database \n* Operator uses Persistent Volume where MariaDB
+    can write its data files \n* Seamless upgrades of MariaDB is possible without
+    loosing existing data \n* Schedule backup at regular intervals \n* Restore backup
+    \n* Monitor resources using Prometheus/Grafana dashboard \n##### Notes:   \n*
+    Persistent Volume for database file and database backup should be created before
+    creating database instance \n* Database and backup Persistent Volume selector
+    label should be correctly mentioned in the repective CR files \n* Persistent Volume
+    Claim details like access mode, claim size, storage class name should be correctly
+    mentioned in the respective CR files. \n* Database environment variables are stored
+    in a Secret \n* For database backup, schedule should be in standard cron format
+    \n* For database restore, correct backup sql file should be provided"  
+  displayName: Mariadb Operator Ansible
+  icon:
+  - base64data: ""
+    mediatype: "image/png"
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - mariadb-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - com.gunjangarge.operator.mariadb
+          resources:
+          - '*'
+          - mariadbbackups
+          - mariadbrestores
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - batch
+          resources:
+          - cronjobs
+          - jobs
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: mariadb-operator
+      deployments:
+      - name: mariadb-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: mariadb-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: mariadb-operator
+            spec:
+              containers:
+              - env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: mariadb-operator
+                - name: ANSIBLE_GATHERING
+                  value: explicit
+                - name: ANSIBLE_DEBUG_LOGS
+                  value: "false"
+                image: quay.io/gunjangarge/mariadb-operator-ansible:v5
+                imagePullPolicy: IfNotPresent
+                name: mariadb-operator
+                resources: {}
+                volumeMounts:
+                - mountPath: /tmp/ansible-operator/runner
+                  name: runner
+              serviceAccountName: mariadb-operator
+              volumes:
+              - emptyDir: {}
+                name: runner
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - mariadb operator ansible
+  links:
+  - name: MariaDB Operator Using Ansible
+    url: https://github.com/gunjangarge/mariadb-operator-ansible
+  maintainers:
+  - email: gunjangarge@gmail.com
+    name: Gunjan Garge
+  maturity: alpha
+  provider:
+    name: Gunjan Garge
+  version: 0.0.5

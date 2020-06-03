@@ -1,18 +1,32 @@
---- 
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{meta.namespace}}-mariadb-service
+  name: {{meta.namespace}}-{{meta.name}}-service
   namespace: "{{meta.namespace}}"
   labels:
+    database_svc_type: headless
     app: mariadb
-    mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
-spec: 
+    connected_to: {{meta.name}}
+    mariadb_cluster: "{{meta.namespace}}-galera-cluster"
+spec:
+  clusterIP: None
   ports: 
-    - nodePort: {{mysql_conn_service_port}}
+    - protocol: TCP
       port: 3306
       targetPort: 3306
       name: mariadb-port
+    - protocol: TCP
+      port: 4444
+      targetPort: 4444
+      name: sst-port
+    - protocol: TCP
+      port: 4567
+      targetPort: 4567
+      name: galera-replication-port
+    - protocol: TCP
+      port: 4568
+      targetPort: 4568
+      name: ist-port
   selector: 
-    app: mariadb
-  type: NodePort
+    connected_to: {{meta.name}}

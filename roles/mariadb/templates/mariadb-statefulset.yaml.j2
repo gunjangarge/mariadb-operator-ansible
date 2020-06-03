@@ -1,14 +1,15 @@
 --- 
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata: 
   name: "{{meta.namespace}}-{{meta.name}}"
   namespace: "{{meta.namespace}}"
   labels:
     app: mariadb
-    mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
+    connected_to: {{meta.name}}
+    mariadb_cluster: "{{meta.namespace}}-galera-cluster"
 spec: 
-  replicas: {{size}}
+  replicas: {{ 1 if cluster.enabled|default(False)|bool or external_storage.enabled|default(False)|bool else size }}
   selector: 
     matchLabels: 
       app: mariadb
@@ -16,7 +17,8 @@ spec:
     metadata: 
       labels: 
         app: mariadb
-        mariadb_cluster: "{{meta.namespace}}-{{meta.name}}"
+        connected_to: {{meta.name}}
+        mariadb_cluster: "{{meta.namespace}}-galera-cluster"
     spec: 
       containers: 
         - env: 
@@ -25,6 +27,7 @@ spec:
                 secretKeyRef:
                   name: '{{meta.namespace}}-mariadb-secret'
                   key: mysql_root_password
+{% if not cluster.enabled or cluster.first_node %}
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
@@ -40,11 +43,24 @@ spec:
                 secretKeyRef:
                   name: '{{meta.namespace}}-mariadb-secret'
                   key: mysql_user_password
+{% endif %}
           image: "{{db_image}}"
+{% if cluster.enabled %}
+          args:
+           - "--wsrep-on=ON"
+           - "--wsrep-cluster-address=gcomm://{{gcomm_url | default('')}}"
+           - "--wsrep-provider=/usr/lib/galera/libgalera_smm.so"
+           - "--binlog-format=row"
+           - "--default-storage-engine=InnoDB"
+           - "--innodb-autoinc-lock_mode=2"
+           - "--bind-address=0.0.0.0"
+           - "--wsrep-cluster-name='galera_cluster'"
+{% endif %}
           name: database
           ports: 
             - name: mariadb-port
               containerPort: 3306
+{% if external_storage.enabled and size == 1 %}
           volumeMounts:
           - mountPath: /var/lib/mysql
             name: mariadb-data
@@ -52,3 +68,8 @@ spec:
         - name: mariadb-data
           persistentVolumeClaim:
             claimName: {{meta.namespace}}-{{meta.name}}-mariadb-pvc
+{% endif %}
+{% if cluster.enabled and cluster.server_name != '' %}
+      nodeSelector:
+        kubernetes.io/hostname: {{cluster.server_name}}
+{% endif %}

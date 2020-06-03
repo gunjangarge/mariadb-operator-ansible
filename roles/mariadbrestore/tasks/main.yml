@@ -18,6 +18,32 @@
     pvc_name: "{{item}}"
   with_items : "{{ backuppvcregister | json_query('resources[0].metadata.name') }}"
 
+- name: Check if PVC is present.
+  fail:
+    msg: 
+    - "PVC - {{pvc_name}} is not found. Please set backup job first." 
+    - "It will create appropriate pv and pvc"
+  when: pvc_name == ""
+
+- name: Get mariadb service ip address
+  k8s_info:
+    api_version: v1
+    kind: Service
+    namespace: "{{meta.namespace}}"
+    label_selectors:
+    - "app=mariadb"
+  register: mariadbserviceregister
+      
+- name: Get mariadb service ip address from k8s_info
+  debug:
+    msg: "Service to be used for backup - {{item}}"
+  with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+
+- name: Set mariadb service ip address from k8s_info
+  set_fact:
+    ip: "{{item}}"
+  with_items : "{{ mariadbserviceregister | json_query('resources[0].spec.clusterIP') }}"
+
 - name: create job for mariadb restore
   community.kubernetes.k8s:
     definition: "{{ lookup('template', item) | from_yaml  }}"
